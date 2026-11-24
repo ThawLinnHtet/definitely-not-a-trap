@@ -3,6 +3,7 @@ import '@fontsource/pixelify-sans/latin-400.css';
 import '@fontsource/pixelify-sans/latin-700.css';
 import './style.css';
 import { levels, type Kind } from './levels';
+import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
 const H = 470;
@@ -86,12 +87,17 @@ class Adventure extends Phaser.Scene {
   private finishOpen = false;
   private lastGround = -1000;
   private jumpPressed = -1000;
+  private stride = 0;
+  private wasGrounded = false;
+  private fallSpeed = 0;
+  private landUntil = 0;
+  private jumpHeld = false;
+  private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
   private captionUntil = 0;
   private clock = 0;
   private scaleCamera = 0;
   private player!: Sprite;
   private hero!: Phaser.GameObjects.Image;
-  private backdrop!: Phaser.GameObjects.Image;
   private terrain!: Phaser.Physics.Arcade.StaticGroup;
   private draw!: Phaser.GameObjects.Graphics;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
@@ -104,10 +110,19 @@ class Adventure extends Phaser.Scene {
   constructor() { super('adventure'); }
   preload() {
     this.load.image('landscape', '/art/grassland.png');
-    this.load.image('adventurer', '/art/adventurer.png');
+    this.load.image('worlds', '/art/adventure-worlds.png');
+    this.load.image(heroTexture, '/art/adventurer-motion.png');
   }
   create() {
     this.makeTextures();
+    registerHeroFrames(this.textures);
+    const worlds = this.textures.get('worlds');
+    const {width, height} = worlds.getSourceImage();
+    const halfWidth = Math.floor(width/2);
+    const halfHeight = Math.floor(height/2);
+    for (let i=0;i<4;i++) {
+      worlds.add(`world-${i+1}`,0,(i%2)*halfWidth,Math.floor(i/2)*halfHeight,halfWidth,halfHeight);
+    }
     this.draw = this.add.graphics().setDepth(6);
     this.keys = this.input.keyboard!.addKeys('LEFT,RIGHT,UP,A,D,W,SPACE,ESC,R') as typeof this.keys;
     this.input.keyboard!.on('keydown-ESC', (event: KeyboardEvent) => {
@@ -131,6 +146,9 @@ class Adventure extends Phaser.Scene {
     };
     const fill = (color: number,x: number,y: number,w: number,h: number) => g.fillStyle(color).fillRect(x,y,w,h);
     texture('body',30,51,()=>fill(0xffffff,0,0,30,51));
+    texture('dust',7,5,()=>{
+      fill(0xb78c61,0,2,7,3); fill(0xe1bf8e,2,0,3,4);
+    });
     texture('plank',50,19,()=>{
       fill(0x432820,0,2,50,17); fill(0x825334,2,5,46,11); fill(0xc58e50,1,1,47,5);
       fill(0xe7b579,3,0,45,2); fill(0x583729,7,9,30,2); fill(0xb4a187,6,8,3,4);
@@ -185,6 +203,11 @@ class Adventure extends Phaser.Scene {
     this.finishOpen = false;
     this.lastGround = -1000;
     this.jumpPressed = -1000;
+    this.stride = 0;
+    this.wasGrounded = false;
+    this.fallSpeed = 0;
+    this.landUntil = 0;
+    this.jumpHeld = false;
     this.clock = 0;
     this.captionUntil = 0;
     this.scaleCamera = 0;
@@ -192,16 +215,14 @@ class Adventure extends Phaser.Scene {
     label.textContent = map.name;
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
-    this.backdrop = this.track(this.add.image(0,0,'landscape').setOrigin(0).setDisplaySize(W,H).setScrollFactor(0).setDepth(-5).setTint(map.tint));
-    if (index > 0) {
-      this.backdrop.setCrop(0,0,this.backdrop.width,Math.floor(this.backdrop.height * .55));
-      this.track(this.add.rectangle(0,253,W,220,0x384a48).setOrigin(0).setScrollFactor(0).setDepth(-6));
-    }
+    const scenery = index===0 ? this.add.image(0,0,'landscape') : this.add.image(0,0,'worlds',`world-${index}`);
+    this.track(scenery.setOrigin(0).setDisplaySize(index===0 ? W : W+85,H)
+      .setScrollFactor(index===0 ? 0 : .09,0).setDepth(-5));
     this.terrain = this.physics.add.staticGroup();
     for (const [x,y,w] of map.surfaces) {
       const floor = this.terrain.create(x+w/2,y+18,'body') as Phaser.Physics.Arcade.Image;
       floor.setDisplaySize(w,36).setVisible(false).refreshBody();
-      if (index > 0) this.paintTerrain(x,y,w,map.tint);
+      if (index > 0) this.paintTerrain(x,y,w);
       if (index === 0 && y < 300) {
         const ledge = this.track(this.add.graphics().setDepth(1).setVisible(false));
         ledge.fillStyle(0x624735).fillRect(x,y,w,13);
@@ -213,8 +234,11 @@ class Adventure extends Phaser.Scene {
     }
     this.player = this.track(this.physics.add.image(this.checkpoint ? map.checkpoint : map.start,
       (index === 0 ? 306 : 333)-28,'body')).setVisible(false).setMaxVelocity(248,720);
-    this.hero = this.track(this.add.image(0,0,'adventurer').setDepth(8));
-    this.hero.setDisplaySize(165,110);
+    this.hero = this.track(this.add.image(0,0,heroTexture,'idle').setDepth(8).setScale(.235));
+    this.dust = this.track(this.add.particles(0,0,'dust',{
+      emitting:false, lifespan:{min:140,max:340}, speedX:{min:-78,max:78},
+      speedY:{min:-92,max:-28}, gravityY:230, scale:{start:.9,end:.25}, alpha:{start:.85,end:0},
+    }).setDepth(7));
     this.syncHero();
     this.colliders.push(this.physics.add.collider(this.player,this.terrain));
     if (index === 0) {
@@ -245,18 +269,39 @@ class Adventure extends Phaser.Scene {
     }
     if (this.paused) this.physics.pause(); else this.physics.resume();
   }
-  private paintTerrain(x: number,y: number,w: number,tint: number) {
-    const graphics = this.track(this.add.graphics().setDepth(1));
-    graphics.fillStyle(0x4e382d).fillRect(x, y+4, w, 145);
-    graphics.fillStyle(0x97683e).fillRect(x+3, y+9, w-6, 132);
-    for (let dx=5;dx<w-6;dx+=12) {
-      const height = 10 + ((dx*17+x) % 20);
-      graphics.fillStyle(dx%5 ? 0xb6804c : 0x694b35).fillRect(x+dx,y+21+(dx%28),Math.min(8,w-dx-2),height);
+  private paintTerrain(x: number,y: number,w: number) {
+    const palettes = [
+      [0x302c26,0x554434,0x826043,0xb68a58,0x55723b,0x91a252],
+      [0x272837,0x414050,0x626075,0x8a8599,0x57586f,0x908da9],
+      [0x49302d,0x744d3c,0xa16a48,0xd59a65,0x8a573c,0xd49965],
+      [0x35292d,0x56404a,0x76545a,0xae7c75,0x684b53,0xaa7971],
+    ];
+    const [shadow,stone,mid,light,rim,edge]=palettes[this.index-1];
+    const graphics=this.track(this.add.graphics().setDepth(1));
+    const tall=y>=300;
+    const depth=tall?H-y+4:22;
+    const pattern=new Phaser.Math.RandomDataGenerator([`${this.index}:${x}:${y}`]);
+
+    graphics.fillStyle(shadow).fillRect(x,y,w,depth);
+    graphics.fillStyle(stone).fillRect(x+3,y+3,w-6,depth-5);
+    for (let row=11;row<depth-4;row+=19) {
+      let offset=row%2===0 ? 8 : 3;
+      while (offset<w-8) {
+        const length=Math.min(pattern.between(12,38),w-offset-3);
+        const height=Math.min(pattern.between(7,17),depth-row-1);
+        const top=y+row+pattern.between(-2,2);
+        graphics.fillStyle(mid,.72).fillRect(x+offset,top+2,length,height-3);
+        graphics.fillStyle(light,.35).fillRect(x+offset+2,top,length-5,3);
+        graphics.fillStyle(shadow,.63).fillRect(x+offset+5,top+height-1,length-5,2);
+        offset+=length+pattern.between(2,7);
+      }
     }
-    const shades = tint===0xc2b9e9 ? [0x7774a4,0xb8adda] : tint===0xe4a6a0 ? [0x805447,0xc28662] : [0x617b30,0xa7ad42];
-    graphics.fillStyle(shades[0]).fillRect(x,y,w,11);
-    graphics.fillStyle(shades[1]).fillRect(x,y,w,4);
-    for (let dx=5;dx<w-4;dx+=7) graphics.fillStyle(shades[0]).fillRect(x+dx,y+8,4,5+(dx%4));
+    graphics.fillStyle(rim).fillRect(x,y,w,7);
+    graphics.fillStyle(edge).fillRect(x+2,y,w-4,3);
+    for (let offset=5;offset<w-9;offset+=pattern.between(6,15)) {
+      graphics.fillStyle(rim).fillRect(x+offset,y+6,pattern.between(3,7),pattern.between(2,6));
+      graphics.fillStyle(light,.72).fillRect(x+offset-2,y+2,3,2);
+    }
   }
   private spawn(type: Kind,x: number,y: number,range=0,id=-1) {
     const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : type==='spikes' ? 'spike' : type==='fakeExit' ? 'exit' : type;
@@ -315,12 +360,27 @@ class Adventure extends Phaser.Scene {
     caption.textContent = line;
     this.captionUntil = this.clock + 3450;
   }
-  private syncHero() {
-    const running = Math.abs(this.player.body?.velocity.x ?? 0)>40;
-    const grounded = (this.player.body as Phaser.Physics.Arcade.Body).blocked.down || (this.player.body as Phaser.Physics.Arcade.Body).touching.down;
-    const bob = grounded && running ? Math.round(Math.sin(this.clock/28)*2) : 0;
-    this.hero.setPosition(Math.round(this.player.x)+(this.hero.flipX?12:-12),Math.round(this.player.y)-17+bob);
-    this.hero.setAngle(grounded && running ? Math.round(Math.sin(this.clock/32)*3) : 0);
+  private syncHero(seconds = 0, grounded = false) {
+    const body = this.player.body as Phaser.Physics.Arcade.Body;
+    const speed = Math.abs(body.velocity.x);
+    let pose = 'idle';
+    if (!grounded) {
+      pose = body.velocity.y < 55 ? 'rise' : 'fall';
+    } else if (this.clock < this.landUntil) {
+      pose = 'land';
+    } else if (speed > 23) {
+      this.stride += speed * seconds / 14;
+      pose = `run-${Math.floor(this.stride) % 4}`;
+    } else {
+      this.stride = 0;
+    }
+
+    if (this.hero.frame.name !== pose) this.hero.setFrame(pose);
+    const footY = body.bottom;
+    const bob = grounded && speed > 24 ? Math.sin(this.stride * Math.PI) : 0;
+    this.hero.setPosition(Math.round(this.player.x),Math.round(footY+bob));
+    this.hero.setAngle(Phaser.Math.Linear(this.hero.angle,grounded ? 0 :
+      Phaser.Math.Clamp(body.velocity.x / 45, -6, 6), Math.min(1,seconds*10)));
   }
   private die() {
     if (this.dead || this.paused) return;
@@ -400,6 +460,7 @@ class Adventure extends Phaser.Scene {
       sprite.setAngle(Math.round(Math.sin(this.clock/23)*3));
       if (this.clock>=piece.timer) {
         piece.state=2;
+        this.dust.emitParticleAt(sprite.x, sprite.y-8, 5);
         (sprite.body as Phaser.Physics.Arcade.Body).checkCollision.none=true;
         sprite.setImmovable(false).setVelocity(20,155).setGravityY(600);
         this.tweens.add({targets:sprite,angle:38,duration:350});
@@ -423,11 +484,15 @@ class Adventure extends Phaser.Scene {
         if (this.clock>=piece.timer) {
           piece.state=2;
           sprite.enableBody(true,x,type==='falling'?45:y-12,true,true);
-          if (type==='falling') sprite.setVelocityY(515);
+          if (type==='falling') sprite.setVelocityY(95).setGravityY(1650);
           piece.timer=this.clock+1120;
         }
       }
-      if (piece.state===2 && this.clock>piece.timer) {
+      if (piece.state===2 && (this.clock>piece.timer || (type==='falling' && sprite.y+sprite.height/2>=y))) {
+        if (type==='falling') {
+          this.dust.emitParticleAt(x,y,8);
+          sound(103,.16,58);
+        }
         piece.state=3;
         sprite.disableBody(true,true);
       }
@@ -476,22 +541,47 @@ class Adventure extends Phaser.Scene {
     const right=k.RIGHT.isDown||k.D.isDown;
     const direction=Number(right)-Number(left);
     const body=this.player.body as Phaser.Physics.Arcade.Body;
-    const floor=body.blocked.down||body.touching.down;
-    if (floor) this.lastGround=this.clock;
-    const pressed=[k.SPACE,k.UP,k.W].map(key=>Phaser.Input.Keyboard.JustDown(key)).some(Boolean);
-    if (pressed) this.jumpPressed=this.clock;
-    if (this.clock-this.jumpPressed<130 && this.clock-this.lastGround<100) {
-      this.player.setVelocityY(-473);
+    const floor=(body.blocked.down||body.touching.down) && body.velocity.y>=0;
+    if (floor) {
+      this.lastGround=this.clock;
+      if (!this.wasGrounded && this.fallSpeed>165) {
+        this.landUntil=this.clock+(this.fallSpeed>430?105:65);
+        this.dust.emitParticleAt(this.player.x,body.bottom, this.fallSpeed>430 ? 7 : 3);
+        sound(145,.075,96);
+      }
+    }
+    const pressingJump=k.SPACE.isDown||k.UP.isDown||k.W.isDown;
+    if ([k.SPACE,k.UP,k.W].map(key=>Phaser.Input.Keyboard.JustDown(key)).some(Boolean)) {
+      this.jumpPressed=this.clock;
+    }
+    const launched=this.clock-this.jumpPressed<128 && this.clock-this.lastGround<96;
+    if (launched) {
+      this.player.setVelocityY(pressingJump ? -498 : -365);
       this.lastGround=-1000;
       this.jumpPressed=-1000;
-      sound(325,.13,520);
+      this.landUntil=0;
+      if (floor) this.dust.emitParticleAt(this.player.x,body.bottom,4);
+      sound(305,.15,450);
+    } else if (!pressingJump && this.jumpHeld && body.velocity.y < -220) {
+      this.player.setVelocityY(-220);
     }
-    const jumping=k.SPACE.isDown||k.UP.isDown||k.W.isDown;
-    if (!jumping && body.velocity.y < -245) this.player.setVelocityY(-245);
-    this.player.setVelocityX(Phaser.Math.Linear(body.velocity.x,direction*248,Math.min(1,seconds*(direction?17:25))));
-    if (direction) this.hero.setFlipX(direction<0);
+    this.jumpHeld=pressingJump;
+    this.wasGrounded=floor&&!launched;
+    this.fallSpeed=Math.max(0,body.velocity.y);
+    body.setGravityY(body.velocity.y>0 ? 390 : 0);
+
+    const speed=body.velocity.x;
+    const reversing=direction!==0 && Math.sign(speed)!==direction;
+    const acceleration=floor ? (direction ? reversing ? 3250 : 2360 : 3100) : direction ? 1390 : 265;
+    const targetSpeed=direction*248;
+    const adjustment=Phaser.Math.Clamp(targetSpeed-speed,-acceleration*seconds,acceleration*seconds);
+    this.player.setVelocityX(speed+adjustment);
+    if (reversing && floor && Math.abs(speed)>175 && Math.abs(speed+adjustment)<=175) {
+      this.dust.emitParticleAt(this.player.x,body.bottom,4);
+    }
+    if (Math.abs(body.velocity.x)>26) this.hero.setFlipX(body.velocity.x<0);
     if (this.player.x<14) this.player.setX(14).setVelocityX(0);
-    this.syncHero();
+    this.syncHero(seconds,this.wasGrounded);
     if (this.player.y>H+46) { this.die(); return; }
     const map=levels[this.index];
     const startScroll=this.index===0?705:424;
