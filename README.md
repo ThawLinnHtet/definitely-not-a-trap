@@ -11,7 +11,7 @@ npm run build
 npm run preview
 ```
 
-Move with **A / D** or the **arrow keys**. Jump using **Space**, **W**, or **↑**. Tap jump for a short hop or hold it for height. Press **Esc** to pause and **R** to retry the current checkpoint. Menus support Tab and Enter.
+Move with **A / D** or the **arrow keys**. Jump using **Space**, **W**, or **↑**. Tap jump for a short hop or hold it for height. Press **P** or **Esc** to pause, **F** to toggle fullscreen and **R** to retry the current checkpoint. Menus support Tab and Enter.
 
 Open the `.tmj` maps in `src/maps` with Tiled to edit platforms, traps, coins, and narrator triggers. The map's coordinate system matches the game world. Surface rectangles define platforms. The Objects layer uses point objects with a type and an optional integer `range` property. Narrator points use a string `text` property.
 

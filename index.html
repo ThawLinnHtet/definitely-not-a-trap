@@ -3,7 +3,9 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Definitely Not a Trap! A five-level pixel-art platformer.">
 <title>Definitely Not a Trap!</title></head>
-<body><main id="game" aria-label="Definitely Not a Trap! game"><div id="stage"></div>
+<body><div id="screen"><main id="game" aria-label="Definitely Not a Trap! game"><div id="stage"></div>
 <div id="hud" aria-label="Game information"><div id="level" class="panel"></div><div id="caption" class="panel" role="status" aria-live="polite"></div></div>
 <div id="overlay" hidden><section class="panel" id="menu" aria-label="Game menu"></section></div>
-</main><script type="module" src="/src/main.ts"></script></body></html>
+<button id="fullscreen" type="button" aria-keyshortcuts="F" hidden>Fullscreen</button>
+<p id="fullscreen-status" role="status" hidden></p>
+</main></div><script type="module" src="/src/main.ts"></script></body></html>

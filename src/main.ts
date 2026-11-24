@@ -129,11 +129,14 @@ class Adventure extends Phaser.Scene {
     }
     this.draw = this.add.graphics().setDepth(6);
     this.keys = this.input.keyboard!.addKeys('LEFT,RIGHT,UP,A,D,W,SPACE,ESC,R') as typeof this.keys;
-    this.input.keyboard!.on('keydown-ESC', (event: KeyboardEvent) => {
+    const togglePause = (event: KeyboardEvent) => {
+      if (event.repeat || this.onTitle || this.dead || this.finishOpen) return;
+      if (event.code === 'Escape' && document.fullscreenElement) return;
       event.preventDefault();
-      if (this.onTitle || this.dead || this.finishOpen) return;
       if (this.paused) this.resumeGame(); else this.pauseGame();
-    });
+    };
+    this.input.keyboard!.on('keydown-ESC', togglePause);
+    this.input.keyboard!.on('keydown-P', togglePause);
     this.input.keyboard!.on('keydown-R', () => {
       if (!this.paused && !this.dead && !this.finishOpen) this.die();
     });
@@ -427,7 +430,7 @@ class Adventure extends Phaser.Scene {
   private pauseGame() {
     this.paused=true;
     this.physics.pause();
-    showMenu('Paused', `Deaths ${this.deaths} · Coins ${this.collected.size} · Esc to resume`,[
+    showMenu('Paused', `Deaths ${this.deaths} · Coins ${this.collected.size} · P to resume`,[
       {title:'Resume',run:()=>this.resumeGame()},
       {title:'Restart Level',run:()=>this.start(this.index)},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.pauseGame(); }},
@@ -629,6 +632,42 @@ const game = new Phaser.Game({
   scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
   physics:{default:'arcade',arcade:{gravity:{x:0,y:1080}}},
   scene:Adventure,
+});
+
+const screen = document.querySelector<HTMLElement>('#screen')!;
+const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen')!;
+const fullscreenStatus = document.querySelector<HTMLElement>('#fullscreen-status')!;
+let fullscreenStatusTimeout: number | undefined;
+
+function syncFullscreenButton() {
+  const active = document.fullscreenElement === screen;
+  fullscreenButton.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
+}
+
+async function toggleFullscreen() {
+  fullscreenStatus.hidden = true;
+  window.clearTimeout(fullscreenStatusTimeout);
+  try {
+    if (document.fullscreenElement === screen) await document.exitFullscreen();
+    else if (document.fullscreenEnabled) await screen.requestFullscreen();
+    else throw new Error('Fullscreen unavailable');
+  } catch {
+    fullscreenStatus.textContent = 'Fullscreen is unavailable here. Try your browser’s fullscreen command.';
+    fullscreenStatus.hidden = false;
+    fullscreenStatusTimeout = window.setTimeout(() => { fullscreenStatus.hidden = true; }, 5000);
+  }
+}
+
+fullscreenButton.hidden = !document.fullscreenEnabled;
+fullscreenButton.addEventListener('click', () => { void toggleFullscreen(); });
+window.addEventListener('keydown', event => {
+  if (event.code !== 'KeyF' || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
+  event.preventDefault();
+  void toggleFullscreen();
+});
+document.addEventListener('fullscreenchange', () => {
+  syncFullscreenButton();
+  requestAnimationFrame(() => game.scale.refresh());
 });
 
 if (import.meta.env.DEV) Object.assign(window, { trapGame: game });
