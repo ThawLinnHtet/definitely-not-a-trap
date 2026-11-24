@@ -1343,7 +1343,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "Wait for the floor to settle before you cross."
+              "value": "The spikes stay up. Give yourself room to jump."
             }
           ]
         },
@@ -1362,7 +1362,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "One little jump. After the click."
+              "value": "One little jump. Mind the low ceiling."
             }
           ]
         },

@@ -1564,7 +1564,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "Wait. The floor is doing that thing again."
+              "value": "The floor is doing that thing again. Jump."
             }
           ]
         },

@@ -12,6 +12,7 @@ const ROCK_WARNING_MS = 130;
 const ROCK_TRIGGER_RANGE = 76;
 const SPIKE_WARNING_MS = 250;
 const SPIKE_TRIGGER_RANGE = 125;
+const BAIT_WARNING_MS = 120;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
 function levelLabel(index: number) {
@@ -416,12 +417,19 @@ class Adventure extends Phaser.Scene {
       },()=>piece.state<2));
       return;
     }
-    if (type==='spikes' || type==='falling' || type==='chase' || type==='boss') sprite.setVisible(false);
+    if (type==='spikes') sprite.setY(y-12).setVisible(false);
+    else if (type==='falling' || type==='chase' || type==='boss') sprite.setVisible(false);
     else if (type!=='coin' && type!=='bait' && type!=='flyer') sprite.setY(y-sprite.height/2);
     body.updateFromGameObject();
     if (type==='fakeExit') return;
     this.colliders.push(this.physics.add.overlap(this.player,sprite,()=>{
-      if (this.dead || !sprite.visible) return;
+      if (this.dead) return;
+      if (type==='spikes') {
+        this.raiseSpikes(piece);
+        this.die(sprite.x);
+        return;
+      }
+      if (!sprite.visible) return;
       if (type==='coin' || type==='bait') {
         if (type==='coin') {
           this.collected.add(id);
@@ -439,7 +447,7 @@ class Adventure extends Phaser.Scene {
           sound(690,.12,990);
         } else if (piece.state===0) {
           piece.state=1;
-          piece.timer=this.clock+250;
+          piece.timer=this.clock+BAIT_WARNING_MS;
           sprite.setTexture('spike').setY(y+15).setTint(0xffbe77);
           body.setSize(37,22,true).updateFromGameObject();
           this.coinSpark.emitParticleAt(sprite.x,y,5);
@@ -447,8 +455,8 @@ class Adventure extends Phaser.Scene {
         } else if (piece.state===2) this.die(sprite.x);
         return;
       }
-      if ((type==='spikes'||type==='falling') && piece.state!==2) return;
       if (type==='falling') {
+        if (piece.state!==2) return;
         piece.state=3;
         sprite.disableBody(true,true);
         this.dust.emitParticleAt(sprite.x,sprite.y+9,9);
@@ -606,6 +614,14 @@ class Adventure extends Phaser.Scene {
       {title:'Main Menu',run:()=>this.title()},
     ]);
   }
+  private raiseSpikes(piece: Piece) {
+    piece.state=2;
+    piece.sprite.setVisible(true);
+  }
+  private drawTrapWarning(x: number,y: number) {
+    this.draw.fillStyle(0xde6f43,.68).fillRect(x-21,y,42,3);
+    this.draw.fillStyle(0xffd28e,.9).fillRect(x-3,y-11,6,8);
+  }
   private tickPiece(piece: Piece, seconds: number) {
     const {type,sprite,x,y,range} = piece;
     const distance = this.player.x-x;
@@ -625,39 +641,44 @@ class Adventure extends Phaser.Scene {
       piece.state=2;
       sprite.clearTint();
     }
-    if (type==='spikes'||type==='falling') {
-      const isRock=type==='falling';
-      const triggered=Math.abs(distance)<=(isRock ? ROCK_TRIGGER_RANGE : SPIKE_TRIGGER_RANGE);
-      if (piece.state===0 && triggered) {
+    if (type==='spikes') {
+      const body=this.player.body as Phaser.Physics.Arcade.Body;
+      const inLane=body.bottom>=y-sprite.height && body.top<y;
+      if (piece.state===0 && inLane && Math.abs(distance)<=SPIKE_TRIGGER_RANGE) {
         piece.state=1;
-        piece.timer=this.clock+(isRock ? ROCK_WARNING_MS : piece.warningMs);
+        piece.timer=this.clock+piece.warningMs;
         sound(120,.13,78);
       }
       if (piece.state===1) {
-        const alertY=isRock ? y-3 : y-1;
-        this.draw.fillStyle(0xde6f43,.68).fillRect(x-21,alertY,42,3);
-        this.draw.fillStyle(0xffd28e,.9).fillRect(x-3,alertY-11,6,8);
+        this.drawTrapWarning(x,y-1);
+        if (this.clock>=piece.timer) this.raiseSpikes(piece);
+      }
+    }
+    if (type==='falling') {
+      if (piece.state===0 && Math.abs(distance)<=ROCK_TRIGGER_RANGE) {
+        piece.state=1;
+        piece.timer=this.clock+ROCK_WARNING_MS;
+        sound(120,.13,78);
+      }
+      if (piece.state===1) {
+        this.drawTrapWarning(x,y-3);
         if (this.clock>=piece.timer) {
           piece.state=2;
-          sprite.enableBody(true,x,isRock ? 32 : y-12,true,true);
-          if (isRock) {
-            (sprite.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
-            sprite.setMaxVelocity(0,1800).setVelocityY(1120).setGravityY(2250);
-          }
+          sprite.enableBody(true,x,32,true,true);
+          (sprite.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
+          sprite.setMaxVelocity(0,1800).setVelocityY(1120).setGravityY(2250);
           piece.timer=this.clock+1120;
         }
       }
-      if (isRock && piece.state===2) {
+      if (piece.state===2) {
         const width=36+Phaser.Math.Clamp(sprite.y/y,0,1)*18;
         this.draw.fillStyle(0x392627,.45).fillEllipse(x,y-2,width,9);
-      }
-      if (piece.state===2 && (this.clock>piece.timer || (isRock && sprite.y+sprite.height/2>=y))) {
-        if (isRock) {
+        if (this.clock>piece.timer || sprite.y+sprite.height/2>=y) {
           this.dust.emitParticleAt(x,y,8);
           sound(103,.16,58);
+          piece.state=3;
+          sprite.disableBody(true,true);
         }
-        piece.state=3;
-        sprite.disableBody(true,true);
       }
     }
     if (type==='enemy'||type==='hopper'||type==='flyer'||(type==='boss'&&sprite.visible)) {
