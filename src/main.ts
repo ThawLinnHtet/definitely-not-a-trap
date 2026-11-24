@@ -99,6 +99,8 @@ class Adventure extends Phaser.Scene {
   private jumpHeld = false;
   private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
   private coinSpark!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private scenery!: Phaser.GameObjects.Image;
+  private openingBleed?: Phaser.GameObjects.Image;
   private openingScenery?: Phaser.GameObjects.Image;
   private captionUntil = 0;
   private clock = 0;
@@ -147,6 +149,7 @@ class Adventure extends Phaser.Scene {
       if (!this.paused && !this.dead && !this.finishOpen) this.pauseGame();
     });
     this.loadLevel(0);
+    this.scale.on(Phaser.Scale.Events.RESIZE,this.positionCamera,this);
     this.title();
   }
   private makeTextures() {
@@ -229,9 +232,11 @@ class Adventure extends Phaser.Scene {
     this.syncCoinCount();
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
-    const scenery = this.add.image(0,0,'worlds',`world-${index || 1}`);
-    this.track(scenery.setOrigin(0).setDisplaySize(W+100,H)
-      .setScrollFactor(index===0 ? .014 : .09,0).setDepth(-6));
+    this.scenery=this.track(this.add.image(0,0,'worlds',`world-${index || 1}`)
+      .setOrigin(0).setScrollFactor(0).setDepth(-6));
+    this.openingBleed=index===0
+      ? this.track(this.add.image(0,0,'landscape').setOrigin(0).setScrollFactor(0).setDepth(-5.75))
+      : undefined;
     this.openingScenery = index===0
       ? this.track(this.add.image(0,0,'landscape').setOrigin(0).setDisplaySize(W,H).setDepth(-5))
       : undefined;
@@ -293,8 +298,34 @@ class Adventure extends Phaser.Scene {
     return Phaser.Math.Clamp(x-lookAhead,0,Math.max(0,levels[this.index].exit+82-W));
   }
   private positionCamera() {
-    this.cameras.main.setScroll(Math.round(this.scaleCamera),0);
-    this.openingScenery?.setAlpha(1-Phaser.Math.Clamp(this.scaleCamera/360,0,1));
+    const camera=this.cameras.main;
+    const {width,height}=this.scale.gameSize;
+    if (!width || !height || !this.player) return;
+
+    // Keep pixel proportions and reveal more scenery on larger aspect ratios.
+    const zoom=Math.min(width/520,height/H);
+    const viewWidth=width/zoom;
+    const viewHeight=height/zoom;
+    const centerX=viewWidth>=W ? this.scaleCamera+W/2 : Phaser.Math.Clamp(
+      this.player.x+viewWidth*.08,this.scaleCamera+viewWidth/2,this.scaleCamera+W-viewWidth/2,
+    );
+    camera.setZoom(zoom).setScroll(centerX-width/2,(H-height)/2);
+
+    this.fitScenery(this.scenery,width,height,viewWidth,viewHeight,
+      Math.min(100,this.scaleCamera*(this.index===0 ? .014 : .09)),100);
+    const openingAlpha=1-Phaser.Math.Clamp(this.scaleCamera/360,0,1);
+    this.openingScenery?.setAlpha(openingAlpha);
+    if (this.openingBleed) {
+      this.fitScenery(this.openingBleed,width,height,viewWidth,viewHeight,0,0);
+      this.openingBleed.setAlpha(openingAlpha);
+    }
+  }
+  private fitScenery(image: Phaser.GameObjects.Image,width: number,height: number,
+    viewWidth: number,viewHeight: number,pan: number,overscan: number) {
+    const scale=Math.max((viewWidth+overscan)/image.width,viewHeight/image.height);
+    image.setScale(scale).setPosition(
+      (width-image.width*scale+overscan)/2-pan,(height-image.height*scale)/2,
+    );
   }
   private addBridge(start: number,y: number,width: number) {
     const supports=this.track(this.add.graphics().setDepth(2));
@@ -447,7 +478,6 @@ class Adventure extends Phaser.Scene {
     this.time.delayedCall(420,()=>this.loadLevel(this.index));
   }
   private start(index: number) {
-    enterDefaultFullscreen();
     this.onTitle = false;
     this.started = true;
     this.checkpoint = undefined;
@@ -679,55 +709,21 @@ const game = new Phaser.Game({
   backgroundColor:'#6ba7ef',
   pixelArt:true,
   roundPixels:true,
-  scale:{mode:Phaser.Scale.FIT,autoCenter:Phaser.Scale.CENTER_BOTH},
+  scale:{mode:Phaser.Scale.RESIZE},
   physics:{default:'arcade',arcade:{gravity:{x:0,y:1080}}},
   scene:Adventure,
 });
 
 const screen = document.querySelector<HTMLElement>('#screen')!;
-const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen')!;
-const fullscreenStatus = document.querySelector<HTMLElement>('#fullscreen-status')!;
-let fullscreenStatusTimeout: number | undefined;
-let fullscreenHandled = false;
-
-function enterDefaultFullscreen() {
-  if (fullscreenHandled || navigator.userActivation?.isActive === false) return;
-  fullscreenHandled = true;
-  if (!document.fullscreenEnabled || document.fullscreenElement) return;
-  void screen.requestFullscreen().catch(() => {
-    // Some embedded browsers prohibit fullscreen. Gameplay can still start.
-  });
-}
-
-function syncFullscreenButton() {
-  const active = document.fullscreenElement === screen;
-  fullscreenButton.textContent = active ? 'Exit fullscreen' : 'Fullscreen';
-}
-
-async function toggleFullscreen() {
-  fullscreenHandled = true;
-  fullscreenStatus.hidden = true;
-  window.clearTimeout(fullscreenStatusTimeout);
-  try {
-    if (document.fullscreenElement === screen) await document.exitFullscreen();
-    else if (document.fullscreenEnabled) await screen.requestFullscreen();
-    else throw new Error('Fullscreen unavailable');
-  } catch {
-    fullscreenStatus.textContent = 'Fullscreen is unavailable here. Try your browser’s fullscreen command.';
-    fullscreenStatus.hidden = false;
-    fullscreenStatusTimeout = window.setTimeout(() => { fullscreenStatus.hidden = true; }, 5000);
+screen.addEventListener('click', () => {
+  if (document.fullscreenEnabled && !document.fullscreenElement) {
+    void screen.requestFullscreen().catch(() => {
+      // Embedded browsers can deny the request; the viewport layout still fills the window.
+    });
   }
-}
+}, {capture:true,once:true});
 
-fullscreenButton.hidden = !document.fullscreenEnabled;
-fullscreenButton.addEventListener('click', () => { void toggleFullscreen(); });
-window.addEventListener('keydown', event => {
-  if (event.code !== 'KeyF' || event.repeat || event.altKey || event.ctrlKey || event.metaKey) return;
-  event.preventDefault();
-  void toggleFullscreen();
-});
 document.addEventListener('fullscreenchange', () => {
-  syncFullscreenButton();
   requestAnimationFrame(() => game.scale.refresh());
 });
 
