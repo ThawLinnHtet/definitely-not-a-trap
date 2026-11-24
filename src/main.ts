@@ -8,6 +8,8 @@ import { heroTexture, registerHeroFrames } from './hero-art';
 const W = 836;
 const H = 470;
 const CAMERA_ZOOM = .89;
+const ROCK_WARNING_MS = 130;
+const ROCK_TRIGGER_RANGE = 76;
 function levelLabel(index: number) {
   return `Level ${index + 1}`;
 }
@@ -16,6 +18,7 @@ const saveKey = 'definitely-not-a-trap-progress';
 const hud = document.querySelector<HTMLElement>('#hud')!;
 const label = document.querySelector<HTMLElement>('#level')!;
 const coins = document.querySelector<HTMLElement>('#coins')!;
+const deaths = document.querySelector<HTMLElement>('#deaths')!;
 const caption = document.querySelector<HTMLElement>('#caption')!;
 const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const menu = document.querySelector<HTMLElement>('#menu')!;
@@ -185,8 +188,15 @@ class Adventure extends Phaser.Scene {
     creature('chase',0xb4413b,56,48);
     creature('boss',0x8a526a,75,63);
     texture('rock',37,38,()=>{
-      fill(0x403b43,4,7,29,27); fill(0x695862,0,13,37,15);
-      fill(0x8b7975,7,4,22,26); fill(0xb0a18c,8,7,12,6); fill(0x64535a,20,19,8,9);
+      const facet=(color: number,coords: [number,number][]) =>
+        g.fillStyle(color).fillPoints(coords.map(([x,y])=>({x,y})),true);
+      facet(0x382d32,[[0,15],[8,6],[16,2],[29,4],[36,13],[37,27],[27,36],[12,37],[3,29]]);
+      facet(0x7a6561,[[3,16],[10,8],[17,5],[28,7],[32,14],[26,24],[13,27],[5,24]]);
+      facet(0xa5917e,[[10,9],[18,5],[28,7],[29,12],[22,15],[12,16],[5,20],[6,15]]);
+      facet(0x57444a,[[32,14],[35,26],[26,34],[13,34],[5,26],[13,27],[25,23]]);
+      facet(0x615151,[[22,14],[28,12],[25,22],[14,25],[16,20]]);
+      fill(0xc1aa8f,12,9,7,2); fill(0xc1aa8f,9,11,4,2); fill(0x9c8375,9,21,4,2);
+      fill(0x775c5e,22,27,5,2); fill(0x907570,30,19,3,3);
     });
     texture('spike',41,26,()=>{
       g.fillStyle(0x493942);
@@ -230,6 +240,7 @@ class Adventure extends Phaser.Scene {
     caption.textContent = '';
     label.textContent = levelLabel(index);
     this.syncCoinCount();
+    deaths.textContent=`Deaths ${this.deaths}`;
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
     this.scenery=this.track(this.add.image(0,0,'worlds',`world-${index || 1}`)
@@ -424,10 +435,17 @@ class Adventure extends Phaser.Scene {
           body.setSize(37,22,true).updateFromGameObject();
           this.coinSpark.emitParticleAt(sprite.x,y,5);
           sound(165,.18,105);
-        } else if (piece.state===2) this.die();
+        } else if (piece.state===2) this.die(sprite.x);
         return;
       }
       if ((type==='spikes'||type==='falling') && piece.state!==2) return;
+      if (type==='falling') {
+        piece.state=3;
+        sprite.disableBody(true,true);
+        this.dust.emitParticleAt(sprite.x,sprite.y+9,9);
+        this.die(sprite.x);
+        return;
+      }
       const canStomp = type==='enemy'||type==='hopper'||type==='boss';
       const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
       if (canStomp && playerBody.velocity.y>110 && playerBody.bottom < body.center.y+10) {
@@ -441,7 +459,7 @@ class Adventure extends Phaser.Scene {
           piece.timer=this.clock+560;
           sprite.setAlpha(.46);
         }
-      } else if (this.clock>=piece.timer || type!=='boss') this.die();
+      } else if (this.clock>=piece.timer || type!=='boss') this.die(sprite.x);
     }));
   }
   private syncCoinCount() {
@@ -474,14 +492,33 @@ class Adventure extends Phaser.Scene {
     this.hero.setAngle(Phaser.Math.Linear(this.hero.angle,grounded ? 0 :
       Phaser.Math.Clamp(body.velocity.x / 45, -6, 6), Math.min(1,seconds*10)));
   }
-  private die() {
+  private die(sourceX?: number) {
     if (this.dead || this.paused) return;
-    this.dead = true;
+    this.dead=true;
     this.deaths++;
-    this.hero.setTint(0xffa38a);
+    deaths.textContent=`Deaths ${this.deaths}`;
     this.physics.pause();
+
+    const {hero}=this;
+    const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const away=(sourceX===undefined ? 0 : Math.sign(this.player.x-sourceX)) || (hero.flipX ? 1 : -1);
+    const x=hero.x;
+    const y=Math.min(hero.y,H-18);
+    hero.setFrame('fall').setPosition(x,y).setTint(0xffbea0);
+    this.dust.emitParticleAt(x,y,8);
     sound(208,.26,61);
-    this.time.delayedCall(420,()=>this.loadLevel(this.index));
+
+    if (reducedMotion) {
+      this.tweens.add({targets:hero,alpha:0,duration:280,onComplete:()=>this.loadLevel(this.index)});
+      return;
+    }
+
+    deaths.animate([{transform:'scale(1.17)',color:'#ffd38c'},{transform:'scale(1)'}],{duration:320});
+    this.cameras.main.shake(120,.004);
+    this.tweens.chain({targets:hero,tweens:[
+      {x:x+away*16,y:y-33,angle:away*22,scaleX:.25,scaleY:.22,duration:105,ease:'Quad.Out'},
+      {x:x+away*37,y:y+76,angle:away*105,alpha:.14,scaleX:.21,scaleY:.21,duration:285,ease:'Quad.In'},
+    ],onComplete:()=>this.loadLevel(this.index)});
   }
   private start(index: number) {
     this.onTitle = false;
@@ -564,24 +601,33 @@ class Adventure extends Phaser.Scene {
       sprite.clearTint();
     }
     if (type==='spikes'||type==='falling') {
-      if (piece.state===0 && distance>-125 && distance<48) {
+      const isRock=type==='falling';
+      const triggered=isRock ? Math.abs(distance)<=ROCK_TRIGGER_RANGE : distance>-125 && distance<48;
+      if (piece.state===0 && triggered) {
         piece.state=1;
-        piece.timer=this.clock+665;
+        piece.timer=this.clock+(isRock ? ROCK_WARNING_MS : 665);
         sound(120,.13,78);
       }
       if (piece.state===1) {
-        const alertY=type==='falling'? y-3 : y-1;
+        const alertY=isRock ? y-3 : y-1;
         this.draw.fillStyle(0xde6f43,.68).fillRect(x-21,alertY,42,3);
         this.draw.fillStyle(0xffd28e,.9).fillRect(x-3,alertY-11,6,8);
         if (this.clock>=piece.timer) {
           piece.state=2;
-          sprite.enableBody(true,x,type==='falling'?45:y-12,true,true);
-          if (type==='falling') sprite.setVelocityY(95).setGravityY(1650);
+          sprite.enableBody(true,x,isRock ? 32 : y-12,true,true);
+          if (isRock) {
+            (sprite.body as Phaser.Physics.Arcade.Body).setAllowGravity(true);
+            sprite.setMaxVelocity(0,1800).setVelocityY(1120).setGravityY(2250);
+          }
           piece.timer=this.clock+1120;
         }
       }
-      if (piece.state===2 && (this.clock>piece.timer || (type==='falling' && sprite.y+sprite.height/2>=y))) {
-        if (type==='falling') {
+      if (isRock && piece.state===2) {
+        const width=36+Phaser.Math.Clamp(sprite.y/y,0,1)*18;
+        this.draw.fillStyle(0x392627,.45).fillEllipse(x,y-2,width,9);
+      }
+      if (piece.state===2 && (this.clock>piece.timer || (isRock && sprite.y+sprite.height/2>=y))) {
+        if (isRock) {
           this.dust.emitParticleAt(x,y,8);
           sound(103,.16,58);
         }

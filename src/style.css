@@ -13,7 +13,9 @@ canvas{display:block;image-rendering:pixelated}
 #level{left:.96cqw;top:.96cqw;min-width:11.75cqw;height:max(22px,3cqw);padding:0 .9cqw;font-size:clamp(11px,1.76cqw,34px)}
 #caption{left:50%;transform:translateX(-50%);top:3.3cqw;min-width:39cqw;min-height:4.4cqw;max-width:86%;padding:.58cqw 1.85cqw;font-size:clamp(12px,2.05cqw,40px);letter-spacing:.065em;text-align:center;white-space:normal}
 #caption:empty,#level:empty,#coins[hidden]{display:none}
-#coins{position:absolute;right:.96cqw;top:.96cqw;padding:.5cqw .9cqw;font-weight:bold;font-size:clamp(11px,1.47cqw,29px);line-height:1.25;font-variant-numeric:tabular-nums}
+#coins,#deaths{position:absolute;padding:.5cqw .9cqw;font-weight:bold;font-size:clamp(11px,1.47cqw,29px);line-height:1.25;font-variant-numeric:tabular-nums}
+#coins{right:.96cqw;top:.96cqw}
+#deaths{left:.96cqw;top:calc(.96cqw + max(22px,3cqw) + .45cqw);min-width:11.75cqw;text-align:center;transform-origin:left center}
 #overlay{display:grid;place-items:center;background:#1b172293;padding:1.5rem}
 #overlay[hidden]{display:none}
 #menu{width:min(clamp(250px,39cqw,560px),88cqw);max-height:100%;overflow:auto;text-align:center;padding:2.1cqw 2.4cqw}
