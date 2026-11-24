@@ -399,6 +399,7 @@ class Adventure extends Phaser.Scene {
     this.time.delayedCall(420,()=>this.loadLevel(this.index));
   }
   private start(index: number) {
+    enterDefaultFullscreen();
     this.onTitle = false;
     this.started = true;
     this.checkpoint = false;
@@ -638,6 +639,16 @@ const screen = document.querySelector<HTMLElement>('#screen')!;
 const fullscreenButton = document.querySelector<HTMLButtonElement>('#fullscreen')!;
 const fullscreenStatus = document.querySelector<HTMLElement>('#fullscreen-status')!;
 let fullscreenStatusTimeout: number | undefined;
+let fullscreenHandled = false;
+
+function enterDefaultFullscreen() {
+  if (fullscreenHandled || navigator.userActivation?.isActive === false) return;
+  fullscreenHandled = true;
+  if (!document.fullscreenEnabled || document.fullscreenElement) return;
+  void screen.requestFullscreen().catch(() => {
+    // Some embedded browsers prohibit fullscreen. Gameplay can still start.
+  });
+}
 
 function syncFullscreenButton() {
   const active = document.fullscreenElement === screen;
@@ -645,6 +656,7 @@ function syncFullscreenButton() {
 }
 
 async function toggleFullscreen() {
+  fullscreenHandled = true;
   fullscreenStatus.hidden = true;
   window.clearTimeout(fullscreenStatusTimeout);
   try {
