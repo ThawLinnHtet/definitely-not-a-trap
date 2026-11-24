@@ -8,7 +8,7 @@ canvas{display:block;image-rendering:pixelated}
 .panel{background:#31211b;border:.23cqw solid #c69a66;outline:.22cqw solid #231711;box-shadow:inset 0 0 0 .32cqw #60432f,0 .27cqw 0 #241711;color:#fff0ca;clip-path:polygon(.52cqw 0,calc(100% - .52cqw) 0,calc(100% - .52cqw) .27cqw,100% .27cqw,100% calc(100% - .27cqw),calc(100% - .52cqw) calc(100% - .27cqw),calc(100% - .52cqw) 100%,.52cqw 100%,.52cqw calc(100% - .27cqw),0 calc(100% - .27cqw),0 .27cqw,.52cqw .27cqw)}
 #level,#caption{position:absolute;display:grid;place-items:center;font-weight:bold;white-space:nowrap;line-height:1}
 #level{left:.96cqw;top:.96cqw;min-width:15cqw;height:3.5cqw;padding:0 1.1cqw;font-size:2.02cqw}
-#caption{left:50%;transform:translateX(-50%);top:3.3cqw;min-height:4.8cqw;max-width:86%;padding:.66cqw 2.1cqw;font-size:2.2cqw;text-align:center;white-space:normal}
+#caption{left:50%;transform:translateX(-50%);top:3.3cqw;min-width:42.55cqw;min-height:4.93cqw;max-width:86%;padding:.66cqw 2.1cqw;font-size:2.3cqw;letter-spacing:.065em;text-align:center;white-space:normal}
 #caption:empty,#level:empty{display:none}
 #overlay{display:grid;place-items:center;background:#1b172293;padding:1.5rem}
 #overlay[hidden]{display:none}
