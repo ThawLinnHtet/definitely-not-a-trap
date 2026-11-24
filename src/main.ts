@@ -27,7 +27,7 @@ const caption = document.querySelector<HTMLElement>('#caption')!;
 const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const menu = document.querySelector<HTMLElement>('#menu')!;
 type Sprite = Phaser.Physics.Arcade.Image;
-type Piece = { type: Kind; sprite: Sprite; x: number; y: number; range: number; timer: number; direction: number; state: number };
+type Piece = { type: Kind; sprite: Sprite; x: number; y: number; range: number; warningMs: number; timer: number; direction: number; state: number };
 let unlocked = 0;
 let muted = false;
 try {
@@ -115,6 +115,7 @@ class Adventure extends Phaser.Scene {
   private player!: Sprite;
   private hero!: Phaser.GameObjects.Image;
   private terrain!: Phaser.Physics.Arcade.StaticGroup;
+  private exitFlag!: Phaser.GameObjects.Image;
   private draw!: Phaser.GameObjects.Graphics;
   private keys!: Record<string, Phaser.Input.Keyboard.Key>;
   private pieces: Piece[] = [];
@@ -252,7 +253,7 @@ class Adventure extends Phaser.Scene {
     this.openingScenery=index===0 ? this.makeOpeningScenery() : undefined;
     this.terrain = this.physics.add.staticGroup();
     for (const [x,y,w] of map.surfaces) {
-      const surfaceDepth=index===0 && y<=240 ? 14 : 36;
+      const surfaceDepth=index===0 ? (y<=240 ? 14 : 36) : (y<=255 ? 14 : y<300 ? 22 : 36);
       const floor = this.terrain.create(x+w/2,y+surfaceDepth/2,'body') as Phaser.Physics.Arcade.Image;
       floor.setDisplaySize(w,surfaceDepth).setVisible(false).refreshBody();
       if (index>0 || x>=W) this.paintTerrain(x,y,w);
@@ -280,11 +281,12 @@ class Adventure extends Phaser.Scene {
     }).setDepth(10));
     this.syncHero();
     this.colliders.push(this.physics.add.collider(this.player,this.terrain));
-    map.objects.forEach(([type,x,y,range],i) => {
+    map.objects.forEach(([type,x,y,range,warningMs],i) => {
       if (type==='bridge' && range) this.addBridge(x,y,range);
-      else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i);
+      else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i,warningMs);
     });
-    this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
+    this.exitFlag=this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
+    this.exitFlag.setVisible(!map.objects.some(([type])=>type==='boss'));
     if (index===0) {
       this.landingArt.push(...this.pieces.filter(piece=>piece.x>594 && piece.x<W && piece.type!=='bridge')
         .map(piece=>piece.sprite));
@@ -325,8 +327,9 @@ class Adventure extends Phaser.Scene {
     const skyRoom=Math.min(Math.max(0,viewHeight-H)/2,H*.14);
     camera.setZoom(zoom).setScroll(centerX-width/2,(H-height)/2-skyRoom);
 
+    const panDistance=Math.max(W,levels[this.index].exit+82-W);
     this.fitScenery(this.scenery,width,height,viewWidth,viewHeight,
-      Math.min(100,this.scaleCamera*(this.index===0 ? .014 : .09)),100);
+      100*Phaser.Math.Clamp(this.scaleCamera/panDistance,0,1),100);
     const openingAlpha=1-Phaser.Math.Clamp(this.scaleCamera/360,0,1);
     this.openingScenery?.setAlpha(openingAlpha).setVisible(openingAlpha>0);
   }
@@ -371,7 +374,7 @@ class Adventure extends Phaser.Scene {
     const [shadow,stone,mid,light,rim,edge]=palettes[this.index];
     const graphics=this.track(this.add.graphics().setDepth(depthOrder));
     const tall=y>=300;
-    const depth=tall ? H-y+4 : this.index===0 && y<=240 ? 14 : 22;
+    const depth=tall ? H-y+4 : y<=(this.index===0 ? 240 : 255) ? 14 : 22;
     const pattern=new Phaser.Math.RandomDataGenerator([`${this.index}:${x}:${y}`]);
 
     graphics.fillStyle(shadow).fillRect(x,y,w,depth);
@@ -395,13 +398,13 @@ class Adventure extends Phaser.Scene {
       graphics.fillStyle(light,.72).fillRect(x+offset-2,y+2,3,2);
     }
   }
-  private spawn(type: Kind,x: number,y: number,range=0,id=-1) {
+  private spawn(type: Kind,x: number,y: number,range=0,id=-1,warningMs=665) {
     const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : type==='spikes' ? 'spike' : type==='fakeExit' ? 'exit' : type;
     const sprite = this.track(this.physics.add.image(x,y,texture)).setDepth(4);
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.setAllowGravity(false);
     sprite.setImmovable();
-    const piece: Piece = {type,sprite,x,y,range,timer:0,direction:1,state:0};
+    const piece: Piece = {type,sprite,x,y,range,warningMs,timer:0,direction:1,state:0};
     this.pieces.push(piece);
     if (type==='bridge') {
       sprite.setY(y+sprite.height/2).setDepth(3);
@@ -450,6 +453,7 @@ class Adventure extends Phaser.Scene {
         this.die(sprite.x);
         return;
       }
+      if (type==='boss' && this.clock<piece.timer) return;
       const canStomp = type==='enemy'||type==='hopper'||type==='boss';
       const playerBody = this.player.body as Phaser.Physics.Arcade.Body;
       if (canStomp && playerBody.velocity.y>110 && playerBody.bottom < body.center.y+10) {
@@ -457,13 +461,16 @@ class Adventure extends Phaser.Scene {
         sound(220,.15,110);
         if (type!=='boss' || ++piece.state>=3) {
           sprite.disableBody(true,true);
-          if (type==='boss') this.say('Fine. That one is the real exit.');
+          if (type==='boss') {
+            this.exitFlag.setVisible(true);
+            this.say('Fine. That one is the real exit.');
+          }
         } else {
           piece.direction = this.player.x<sprite.x ? 1 : -1;
           piece.timer=this.clock+560;
           sprite.setAlpha(.46);
         }
-      } else if (this.clock>=piece.timer || type!=='boss') this.die(sprite.x);
+      } else this.die(sprite.x);
     }));
   }
   private syncCoinCount() {
@@ -621,7 +628,7 @@ class Adventure extends Phaser.Scene {
       const triggered=isRock ? Math.abs(distance)<=ROCK_TRIGGER_RANGE : distance>-125 && distance<48;
       if (piece.state===0 && triggered) {
         piece.state=1;
-        piece.timer=this.clock+(isRock ? ROCK_WARNING_MS : 665);
+        piece.timer=this.clock+(isRock ? ROCK_WARNING_MS : piece.warningMs);
         sound(120,.13,78);
       }
       if (piece.state===1) {
@@ -667,17 +674,21 @@ class Adventure extends Phaser.Scene {
       (sprite.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
     }
     if (type==='chase') {
+      if (range && distance>=range) {
+        sprite.disableBody(true,true);
+        return;
+      }
       if (piece.state===0 && distance>40) {
         piece.state=1;
-        sprite.setPosition(this.player.x-220,y-24).setVisible(true);
+        (sprite.body as Phaser.Physics.Arcade.Body).reset(this.player.x-220,y-24);
+        sprite.setVisible(true);
         sound(124,.22,60);
       }
       if (piece.state===1) {
-        sprite.setX(sprite.x + 192*seconds);
-        (sprite.body as Phaser.Physics.Arcade.Body).updateFromGameObject();
+        (sprite.body as Phaser.Physics.Arcade.Body).reset(sprite.x+224*seconds,sprite.y);
       }
     }
-    if (type==='fakeExit' && piece.state===0 && Math.abs(distance)<39 && this.player.y>y-90) {
+    if (type==='fakeExit' && piece.state===0 && Math.abs(distance)<39) {
       piece.state=1;
       sprite.setVisible(false);
       this.say('Congratulations! Your prize is behind you. Kidding.');

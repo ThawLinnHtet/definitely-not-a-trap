@@ -1,6 +1,6 @@
 export type Surface = readonly [x: number, y: number, width: number];
 export type Kind = 'bridge' | 'bait' | 'spikes' | 'falling' | 'chase' | 'enemy' | 'hopper' | 'flyer' | 'coin' | 'fakeExit' | 'boss';
-type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number];
+type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number, warningMs?: number];
 
 interface Level {
   tint: number;
@@ -38,7 +38,8 @@ function readMap(source: string): Level {
     exit: point('exit'),
     surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
     objects: objects.filter(({type}) => kinds.has(type)).map(item =>
-      [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0)]),
+      [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0),
+        Number(property(item.properties, 'warningMs') ?? 665)]),
     lines: layer('Narrator').map(item => [item.x, String(property(item.properties, 'text'))]),
   };
 }

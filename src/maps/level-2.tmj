@@ -6,7 +6,7 @@
   "renderorder": "right-down",
   "tilewidth": 16,
   "tileheight": 16,
-  "width": 99,
+  "width": 504,
   "height": 30,
   "infinite": false,
   "nextlayerid": 4,
@@ -33,7 +33,7 @@
           "type": "",
           "x": 0,
           "y": 337,
-          "width": 470,
+          "width": 440,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -42,9 +42,9 @@
           "id": 2,
           "name": "",
           "type": "",
-          "x": 471,
-          "y": 337,
-          "width": 245,
+          "x": 550,
+          "y": 321,
+          "width": 230,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -53,9 +53,9 @@
           "id": 3,
           "name": "",
           "type": "",
-          "x": 798,
+          "x": 880,
           "y": 337,
-          "width": 214,
+          "width": 350,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -64,9 +64,9 @@
           "id": 4,
           "name": "",
           "type": "",
-          "x": 1083,
-          "y": 337,
-          "width": 457,
+          "x": 1350,
+          "y": 309,
+          "width": 250,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -75,9 +75,9 @@
           "id": 5,
           "name": "",
           "type": "",
-          "x": 195,
-          "y": 271,
-          "width": 117,
+          "x": 1712,
+          "y": 337,
+          "width": 390,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -86,9 +86,9 @@
           "id": 6,
           "name": "",
           "type": "",
-          "x": 338,
-          "y": 235,
-          "width": 125,
+          "x": 2230,
+          "y": 320,
+          "width": 255,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -97,10 +97,241 @@
           "id": 7,
           "name": "",
           "type": "",
-          "x": 810,
-          "y": 266,
-          "width": 105,
+          "x": 2590,
+          "y": 337,
+          "width": 365,
           "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 8,
+          "name": "",
+          "type": "",
+          "x": 3090,
+          "y": 302,
+          "width": 225,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 9,
+          "name": "",
+          "type": "",
+          "x": 3433,
+          "y": 337,
+          "width": 485,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 10,
+          "name": "",
+          "type": "",
+          "x": 4163,
+          "y": 337,
+          "width": 340,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 11,
+          "name": "",
+          "type": "",
+          "x": 4611,
+          "y": 312,
+          "width": 260,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 12,
+          "name": "",
+          "type": "",
+          "x": 4996,
+          "y": 337,
+          "width": 420,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 13,
+          "name": "",
+          "type": "",
+          "x": 5506,
+          "y": 320,
+          "width": 215,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 14,
+          "name": "",
+          "type": "",
+          "x": 5866,
+          "y": 337,
+          "width": 400,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 15,
+          "name": "",
+          "type": "",
+          "x": 6380,
+          "y": 305,
+          "width": 270,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 16,
+          "name": "",
+          "type": "",
+          "x": 6745,
+          "y": 337,
+          "width": 365,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 17,
+          "name": "",
+          "type": "",
+          "x": 7243,
+          "y": 317,
+          "width": 235,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 18,
+          "name": "",
+          "type": "",
+          "x": 7586,
+          "y": 337,
+          "width": 470,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 19,
+          "name": "",
+          "type": "",
+          "x": 68,
+          "y": 258,
+          "width": 202,
+          "height": 22,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 20,
+          "name": "",
+          "type": "",
+          "x": 945,
+          "y": 226,
+          "width": 127,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 21,
+          "name": "",
+          "type": "",
+          "x": 1747,
+          "y": 251,
+          "width": 215,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 22,
+          "name": "",
+          "type": "",
+          "x": 2657,
+          "y": 225,
+          "width": 160,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 23,
+          "name": "",
+          "type": "",
+          "x": 3471,
+          "y": 249,
+          "width": 277,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 24,
+          "name": "",
+          "type": "",
+          "x": 4205,
+          "y": 260,
+          "width": 148,
+          "height": 22,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 25,
+          "name": "",
+          "type": "",
+          "x": 5056,
+          "y": 231,
+          "width": 199,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 26,
+          "name": "",
+          "type": "",
+          "x": 5902,
+          "y": 252,
+          "width": 238,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 27,
+          "name": "",
+          "type": "",
+          "x": 6806,
+          "y": 225,
+          "width": 148,
+          "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 28,
+          "name": "",
+          "type": "",
+          "x": 7648,
+          "y": 251,
+          "width": 214,
+          "height": 14,
           "rotation": 0,
           "visible": true
         }
@@ -117,10 +348,10 @@
       "name": "Objects",
       "objects": [
         {
-          "id": 8,
+          "id": 29,
           "name": "",
           "type": "start",
-          "x": 55,
+          "x": 48,
           "y": 0,
           "point": true,
           "width": 0,
@@ -129,10 +360,10 @@
           "visible": true
         },
         {
-          "id": 9,
+          "id": 30,
           "name": "",
           "type": "checkpoint",
-          "x": 475,
+          "x": 925,
           "y": 0,
           "point": true,
           "width": 0,
@@ -141,10 +372,70 @@
           "visible": true
         },
         {
-          "id": 10,
+          "id": 31,
+          "name": "",
+          "type": "checkpoint",
+          "x": 2275,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 32,
+          "name": "",
+          "type": "checkpoint",
+          "x": 3478,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 33,
+          "name": "",
+          "type": "checkpoint",
+          "x": 5041,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 34,
+          "name": "",
+          "type": "checkpoint",
+          "x": 6425,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 35,
+          "name": "",
+          "type": "checkpoint",
+          "x": 7288,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 36,
           "name": "",
           "type": "exit",
-          "x": 1480,
+          "x": 7994,
           "y": 0,
           "point": true,
           "width": 0,
@@ -153,87 +444,42 @@
           "visible": true
         },
         {
-          "id": 11,
+          "id": 37,
+          "name": "",
+          "type": "bridge",
+          "x": 3918,
+          "y": 337,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 245
+            }
+          ]
+        },
+        {
+          "id": 38,
           "name": "",
           "type": "bait",
-          "x": 355,
+          "x": 246,
           "y": 308,
           "point": true,
           "width": 0,
           "height": 0,
           "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "range",
-              "type": "int",
-              "value": 0
-            }
-          ]
+          "visible": true
         },
         {
-          "id": 12,
-          "name": "",
-          "type": "coin",
-          "x": 240,
-          "y": 244,
-          "point": true,
-          "width": 0,
-          "height": 0,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "range",
-              "type": "int",
-              "value": 0
-            }
-          ]
-        },
-        {
-          "id": 13,
-          "name": "",
-          "type": "coin",
-          "x": 395,
-          "y": 205,
-          "point": true,
-          "width": 0,
-          "height": 0,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "range",
-              "type": "int",
-              "value": 0
-            }
-          ]
-        },
-        {
-          "id": 14,
-          "name": "",
-          "type": "hopper",
-          "x": 604,
-          "y": 337,
-          "point": true,
-          "width": 0,
-          "height": 0,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "range",
-              "type": "int",
-              "value": 62
-            }
-          ]
-        },
-        {
-          "id": 15,
+          "id": 39,
           "name": "",
           "type": "enemy",
-          "x": 928,
-          "y": 337,
+          "x": 1026,
+          "y": 226,
           "point": true,
           "width": 0,
           "height": 0,
@@ -243,16 +489,28 @@
             {
               "name": "range",
               "type": "int",
-              "value": 36
+              "value": 45
             }
           ]
         },
         {
-          "id": 16,
+          "id": 40,
           "name": "",
-          "type": "spikes",
-          "x": 1204,
-          "y": 337,
+          "type": "bait",
+          "x": 1918,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 41,
+          "name": "",
+          "type": "hopper",
+          "x": 2745,
+          "y": 225,
           "point": true,
           "width": 0,
           "height": 0,
@@ -262,28 +520,899 @@
             {
               "name": "range",
               "type": "int",
-              "value": 0
+              "value": 52
             }
           ]
         },
         {
-          "id": 17,
+          "id": 42,
+          "name": "",
+          "type": "bait",
+          "x": 3687,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 43,
+          "name": "",
+          "type": "enemy",
+          "x": 4275,
+          "y": 260,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 42
+            }
+          ]
+        },
+        {
+          "id": 44,
+          "name": "",
+          "type": "bait",
+          "x": 5231,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 45,
+          "name": "",
+          "type": "bait",
+          "x": 6071,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 46,
+          "name": "",
+          "type": "hopper",
+          "x": 6888,
+          "y": 225,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 45
+            }
+          ]
+        },
+        {
+          "id": 47,
+          "name": "",
+          "type": "bait",
+          "x": 7812,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 48,
           "name": "",
           "type": "coin",
-          "x": 1320,
+          "x": 447,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 49,
+          "name": "",
+          "type": "coin",
+          "x": 501,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 50,
+          "name": "",
+          "type": "coin",
+          "x": 392,
+          "y": 293,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 51,
+          "name": "",
+          "type": "coin",
+          "x": 75,
           "y": 300,
           "point": true,
           "width": 0,
           "height": 0,
           "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "range",
-              "type": "int",
-              "value": 0
-            }
-          ]
+          "visible": true
+        },
+        {
+          "id": 52,
+          "name": "",
+          "type": "coin",
+          "x": 787,
+          "y": 225,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 53,
+          "name": "",
+          "type": "coin",
+          "x": 836,
+          "y": 218,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 54,
+          "name": "",
+          "type": "coin",
+          "x": 1237,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 55,
+          "name": "",
+          "type": "coin",
+          "x": 1297,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 56,
+          "name": "",
+          "type": "coin",
+          "x": 1182,
+          "y": 293,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 57,
+          "name": "",
+          "type": "coin",
+          "x": 1607,
+          "y": 213,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 58,
+          "name": "",
+          "type": "coin",
+          "x": 1662,
+          "y": 206,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 59,
+          "name": "",
+          "type": "coin",
+          "x": 1425,
+          "y": 272,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 60,
+          "name": "",
+          "type": "coin",
+          "x": 2109,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 61,
+          "name": "",
+          "type": "coin",
+          "x": 2173,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 62,
+          "name": "",
+          "type": "coin",
+          "x": 2054,
+          "y": 293,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 63,
+          "name": "",
+          "type": "coin",
+          "x": 2492,
+          "y": 224,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 64,
+          "name": "",
+          "type": "coin",
+          "x": 2543,
+          "y": 217,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 65,
+          "name": "",
+          "type": "coin",
+          "x": 2962,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 66,
+          "name": "",
+          "type": "coin",
+          "x": 3030,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 67,
+          "name": "",
+          "type": "coin",
+          "x": 2907,
+          "y": 293,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 68,
+          "name": "",
+          "type": "coin",
+          "x": 2665,
+          "y": 300,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 69,
+          "name": "",
+          "type": "coin",
+          "x": 3322,
+          "y": 206,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 70,
+          "name": "",
+          "type": "coin",
+          "x": 3381,
+          "y": 199,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 71,
+          "name": "",
+          "type": "coin",
+          "x": 3963,
+          "y": 293,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 72,
+          "name": "",
+          "type": "coin",
+          "x": 4510,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 73,
+          "name": "",
+          "type": "coin",
+          "x": 4563,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 74,
+          "name": "",
+          "type": "coin",
+          "x": 4238,
+          "y": 300,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 75,
+          "name": "",
+          "type": "coin",
+          "x": 4878,
+          "y": 216,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 76,
+          "name": "",
+          "type": "coin",
+          "x": 4941,
+          "y": 209,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 77,
+          "name": "",
+          "type": "coin",
+          "x": 4823,
+          "y": 268,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 78,
+          "name": "",
+          "type": "coin",
+          "x": 5423,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 79,
+          "name": "",
+          "type": "coin",
+          "x": 5466,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 80,
+          "name": "",
+          "type": "coin",
+          "x": 5728,
+          "y": 224,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 81,
+          "name": "",
+          "type": "coin",
+          "x": 5802,
+          "y": 217,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 82,
+          "name": "",
+          "type": "coin",
+          "x": 5673,
+          "y": 276,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 83,
+          "name": "",
+          "type": "coin",
+          "x": 5581,
+          "y": 283,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 84,
+          "name": "",
+          "type": "coin",
+          "x": 6273,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 85,
+          "name": "",
+          "type": "coin",
+          "x": 6329,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 86,
+          "name": "",
+          "type": "coin",
+          "x": 6657,
+          "y": 209,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 87,
+          "name": "",
+          "type": "coin",
+          "x": 6703,
+          "y": 202,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 88,
+          "name": "",
+          "type": "coin",
+          "x": 6602,
+          "y": 261,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 89,
+          "name": "",
+          "type": "coin",
+          "x": 7117,
+          "y": 241,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 90,
+          "name": "",
+          "type": "coin",
+          "x": 7184,
+          "y": 234,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 91,
+          "name": "",
+          "type": "coin",
+          "x": 6820,
+          "y": 300,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 92,
+          "name": "",
+          "type": "coin",
+          "x": 7485,
+          "y": 221,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 93,
+          "name": "",
+          "type": "coin",
+          "x": 7538,
+          "y": 214,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 94,
+          "name": "",
+          "type": "coin",
+          "x": 7430,
+          "y": 273,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 95,
+          "name": "",
+          "type": "coin",
+          "x": 129,
+          "y": 220,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 96,
+          "name": "",
+          "type": "coin",
+          "x": 209,
+          "y": 220,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 97,
+          "name": "",
+          "type": "coin",
+          "x": 983,
+          "y": 188,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 98,
+          "name": "",
+          "type": "coin",
+          "x": 1034,
+          "y": 188,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 99,
+          "name": "",
+          "type": "coin",
+          "x": 1812,
+          "y": 213,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 100,
+          "name": "",
+          "type": "coin",
+          "x": 1898,
+          "y": 213,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 101,
+          "name": "",
+          "type": "coin",
+          "x": 2705,
+          "y": 187,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 102,
+          "name": "",
+          "type": "coin",
+          "x": 2769,
+          "y": 187,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 103,
+          "name": "",
+          "type": "coin",
+          "x": 3554,
+          "y": 211,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 104,
+          "name": "",
+          "type": "coin",
+          "x": 3665,
+          "y": 211,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 105,
+          "name": "",
+          "type": "coin",
+          "x": 4249,
+          "y": 222,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 106,
+          "name": "",
+          "type": "coin",
+          "x": 4309,
+          "y": 222,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 107,
+          "name": "",
+          "type": "coin",
+          "x": 5116,
+          "y": 193,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 108,
+          "name": "",
+          "type": "coin",
+          "x": 5195,
+          "y": 193,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 109,
+          "name": "",
+          "type": "coin",
+          "x": 5973,
+          "y": 214,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 110,
+          "name": "",
+          "type": "coin",
+          "x": 6069,
+          "y": 214,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 111,
+          "name": "",
+          "type": "coin",
+          "x": 6850,
+          "y": 187,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 112,
+          "name": "",
+          "type": "coin",
+          "x": 6910,
+          "y": 187,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 113,
+          "name": "",
+          "type": "coin",
+          "x": 7712,
+          "y": 213,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 114,
+          "name": "",
+          "type": "coin",
+          "x": 7798,
+          "y": 213,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
         }
       ],
       "type": "objectgroup",
@@ -298,10 +1427,10 @@
       "name": "Narrator",
       "objects": [
         {
-          "id": 18,
+          "id": 115,
           "name": "",
           "type": "caption",
-          "x": 84,
+          "x": 82,
           "y": 0,
           "point": true,
           "width": 0,
@@ -312,15 +1441,15 @@
             {
               "name": "text",
               "type": "string",
-              "value": "Stay low. All the good coins are down here."
+              "value": "Every coin is valuable. Some come with a lesson."
             }
           ]
         },
         {
-          "id": 19,
+          "id": 116,
           "name": "",
           "type": "caption",
-          "x": 1100,
+          "x": 932,
           "y": 0,
           "point": true,
           "width": 0,
@@ -331,7 +1460,102 @@
             {
               "name": "text",
               "type": "string",
-              "value": "The floor is perfectly ordinary."
+              "value": "The upper path is optional. The view is excellent."
+            }
+          ]
+        },
+        {
+          "id": 117,
+          "name": "",
+          "type": "caption",
+          "x": 1766,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "That very shiny coin is probably fine."
+            }
+          ]
+        },
+        {
+          "id": 118,
+          "name": "",
+          "type": "caption",
+          "x": 3455,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "You know the bridge. What about the coins?"
+            }
+          ]
+        },
+        {
+          "id": 119,
+          "name": "",
+          "type": "caption",
+          "x": 5046,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "A coin trail usually tells you where I want you to go."
+            }
+          ]
+        },
+        {
+          "id": 120,
+          "name": "",
+          "type": "caption",
+          "x": 6773,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "The sign says left. I wrote the sign."
+            }
+          ]
+        },
+        {
+          "id": 121,
+          "name": "",
+          "type": "caption",
+          "x": 7846,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "That flag is exactly as far away as it looks."
             }
           ]
         }
@@ -345,5 +1569,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 20
+  "nextobjectid": 122
 }
