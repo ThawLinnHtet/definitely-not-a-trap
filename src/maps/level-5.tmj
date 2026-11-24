@@ -284,9 +284,9 @@
           "id": 24,
           "name": "",
           "type": "",
-          "x": 4520,
+          "x": 4495,
           "y": 237,
-          "width": 170,
+          "width": 92,
           "height": 14,
           "rotation": 0,
           "visible": true
@@ -555,7 +555,7 @@
             {
               "name": "warningMs",
               "type": "int",
-              "value": 420
+              "value": 235
             }
           ]
         },
@@ -1321,7 +1321,7 @@
           "id": 107,
           "name": "",
           "type": "coin",
-          "x": 4571,
+          "x": 4525,
           "y": 199,
           "point": true,
           "width": 0,
@@ -1333,7 +1333,7 @@
           "id": 108,
           "name": "",
           "type": "coin",
-          "x": 4639,
+          "x": 4562,
           "y": 199,
           "point": true,
           "width": 0,

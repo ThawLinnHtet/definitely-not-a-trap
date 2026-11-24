@@ -240,7 +240,7 @@
           "id": 20,
           "name": "",
           "type": "",
-          "x": 2319,
+          "x": 2295,
           "y": 240,
           "width": 111,
           "height": 14,
@@ -452,7 +452,7 @@
             {
               "name": "warningMs",
               "type": "int",
-              "value": 385
+              "value": 240
             }
           ]
         },
@@ -490,7 +490,7 @@
             {
               "name": "warningMs",
               "type": "int",
-              "value": 435
+              "value": 250
             }
           ]
         },
@@ -528,7 +528,7 @@
             {
               "name": "warningMs",
               "type": "int",
-              "value": 385
+              "value": 230
             }
           ]
         },
@@ -566,7 +566,7 @@
             {
               "name": "warningMs",
               "type": "int",
-              "value": 420
+              "value": 250
             }
           ]
         },
@@ -1181,7 +1181,7 @@
           "id": 92,
           "name": "",
           "type": "coin",
-          "x": 2352,
+          "x": 2328,
           "y": 202,
           "point": true,
           "width": 0,
@@ -1193,7 +1193,7 @@
           "id": 93,
           "name": "",
           "type": "coin",
-          "x": 2397,
+          "x": 2373,
           "y": 202,
           "point": true,
           "width": 0,

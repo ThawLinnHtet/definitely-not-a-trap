@@ -10,6 +10,8 @@ const H = 470;
 const CAMERA_ZOOM = .89;
 const ROCK_WARNING_MS = 130;
 const ROCK_TRIGGER_RANGE = 76;
+const SPIKE_WARNING_MS = 250;
+const SPIKE_TRIGGER_RANGE = 125;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
 function levelLabel(index: number) {
@@ -398,7 +400,7 @@ class Adventure extends Phaser.Scene {
       graphics.fillStyle(light,.72).fillRect(x+offset-2,y+2,3,2);
     }
   }
-  private spawn(type: Kind,x: number,y: number,range=0,id=-1,warningMs=665) {
+  private spawn(type: Kind,x: number,y: number,range=0,id=-1,warningMs=SPIKE_WARNING_MS) {
     const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : type==='spikes' ? 'spike' : type==='fakeExit' ? 'exit' : type;
     const sprite = this.track(this.physics.add.image(x,y,texture)).setDepth(4);
     const body = sprite.body as Phaser.Physics.Arcade.Body;
@@ -625,7 +627,7 @@ class Adventure extends Phaser.Scene {
     }
     if (type==='spikes'||type==='falling') {
       const isRock=type==='falling';
-      const triggered=isRock ? Math.abs(distance)<=ROCK_TRIGGER_RANGE : distance>-125 && distance<48;
+      const triggered=Math.abs(distance)<=(isRock ? ROCK_TRIGGER_RANGE : SPIKE_TRIGGER_RANGE);
       if (piece.state===0 && triggered) {
         piece.state=1;
         piece.timer=this.clock+(isRock ? ROCK_WARNING_MS : piece.warningMs);

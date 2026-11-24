@@ -37,9 +37,11 @@ function readMap(source: string): Level {
     checkpoints: objects.filter(item => item.type === 'checkpoint').map(item => item.x),
     exit: point('exit'),
     surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
-    objects: objects.filter(({type}) => kinds.has(type)).map(item =>
-      [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0),
-        Number(property(item.properties, 'warningMs') ?? 665)]),
+    objects: objects.filter(({type}) => kinds.has(type)).map(item => {
+      const warningMs = property(item.properties, 'warningMs');
+      return [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0),
+        warningMs === undefined ? undefined : Number(warningMs)];
+    }),
     lines: layer('Narrator').map(item => [item.x, String(property(item.properties, 'text'))]),
   };
 }
