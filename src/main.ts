@@ -14,6 +14,7 @@ function levelLabel(index: number) {
 const saveKey = 'definitely-not-a-trap-progress';
 const hud = document.querySelector<HTMLElement>('#hud')!;
 const label = document.querySelector<HTMLElement>('#level')!;
+const coins = document.querySelector<HTMLElement>('#coins')!;
 const caption = document.querySelector<HTMLElement>('#caption')!;
 const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const menu = document.querySelector<HTMLElement>('#menu')!;
@@ -81,7 +82,7 @@ function closeMenu() {
 
 class Adventure extends Phaser.Scene {
   private index = 0;
-  private checkpoint = false;
+  private checkpoint?: number;
   private deaths = 0;
   private collected = new Set<number>();
   private paused = true;
@@ -97,6 +98,8 @@ class Adventure extends Phaser.Scene {
   private landUntil = 0;
   private jumpHeld = false;
   private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private coinSpark!: Phaser.GameObjects.Particles.ParticleEmitter;
+  private openingScenery?: Phaser.GameObjects.Image;
   private captionUntil = 0;
   private clock = 0;
   private scaleCamera = 0;
@@ -161,6 +164,9 @@ class Adventure extends Phaser.Scene {
       fill(0xe7b579,3,0,45,2); fill(0x583729,7,9,30,2); fill(0xb4a187,6,8,3,4);
       fill(0xb4a187,42,8,3,4);
     });
+    texture('coin-spark',5,5,()=>{
+      fill(0xffcc64,2,0,1,5); fill(0xffe5a2,0,2,5,1);
+    });
     texture('coin',15,19,()=>{
       fill(0x7d4b23,3,0,9,19); fill(0x7d4b23,0,4,15,11);
       fill(0xffc54e,4,2,7,15); fill(0xeaa039,2,5,11,9); fill(0xffe591,5,4,2,9);
@@ -220,17 +226,23 @@ class Adventure extends Phaser.Scene {
     this.scaleCamera = 0;
     caption.textContent = '';
     label.textContent = levelLabel(index);
+    this.syncCoinCount();
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
-    const scenery = index===0 ? this.add.image(0,0,'landscape') : this.add.image(0,0,'worlds',`world-${index}`);
-    this.track(scenery.setOrigin(0).setDisplaySize(index===0 ? W : W+85,H)
-      .setScrollFactor(index===0 ? 0 : .09,0).setDepth(-5));
+    const scenery = this.add.image(0,0,'worlds',`world-${index || 1}`);
+    this.track(scenery.setOrigin(0).setDisplaySize(W+100,H)
+      .setScrollFactor(index===0 ? .014 : .09,0).setDepth(-6));
+    this.openingScenery = index===0
+      ? this.track(this.add.image(0,0,'landscape').setOrigin(0).setDisplaySize(W,H).setDepth(-5))
+      : undefined;
     this.terrain = this.physics.add.staticGroup();
     for (const [x,y,w] of map.surfaces) {
-      const floor = this.terrain.create(x+w/2,y+18,'body') as Phaser.Physics.Arcade.Image;
-      floor.setDisplaySize(w,36).setVisible(false).refreshBody();
-      if (index > 0) this.paintTerrain(x,y,w);
-      if (index === 0 && y < 300) {
+      const surfaceDepth=index===0 && y<=240 ? 14 : 36;
+      const floor = this.terrain.create(x+w/2,y+surfaceDepth/2,'body') as Phaser.Physics.Arcade.Image;
+      floor.setDisplaySize(w,surfaceDepth).setVisible(false).refreshBody();
+      if (index>0 || x>=W) this.paintTerrain(x,y,w);
+      else if (y>=300) this.paintTerrain(x,y,w,-5.5);
+      if (index===0 && x<W && y<300) {
         const ledge = this.track(this.add.graphics().setDepth(1).setVisible(false));
         ledge.fillStyle(0x624735).fillRect(x,y,w,13);
         ledge.fillStyle(0xc18e56).fillRect(x+3,y+4,w-6,6);
@@ -239,54 +251,75 @@ class Adventure extends Phaser.Scene {
         this.landingArt.push(ledge);
       }
     }
-    this.player = this.track(this.physics.add.image(this.checkpoint ? map.checkpoint : map.start,
-      (index === 0 ? 306 : 333)-28,'body')).setVisible(false).setMaxVelocity(248,720);
+    const spawnX = this.checkpoint ?? map.start;
+    this.player = this.track(this.physics.add.image(spawnX,this.groundAt(spawnX)-28,'body'))
+      .setVisible(false).setMaxVelocity(248,720);
     this.hero = this.track(this.add.image(0,0,heroTexture,'idle').setDepth(8).setScale(.235));
     this.dust = this.track(this.add.particles(0,0,'dust',{
       emitting:false, lifespan:{min:140,max:340}, speedX:{min:-78,max:78},
       speedY:{min:-92,max:-28}, gravityY:230, scale:{start:.9,end:.25}, alpha:{start:.85,end:0},
     }).setDepth(7));
+    this.coinSpark = this.track(this.add.particles(0,0,'coin-spark',{
+      emitting:false,lifespan:{min:120,max:310},speed:{min:45,max:126},gravityY:170,
+      scale:{start:1.2,end:.35},alpha:{start:1,end:0},
+    }).setDepth(10));
     this.syncHero();
     this.colliders.push(this.physics.add.collider(this.player,this.terrain));
-    if (index === 0) {
-      const supports = this.track(this.add.graphics().setDepth(2));
-      for (const [x, direction] of [[169,1],[611,-1]]) {
-        supports.fillStyle(0x4a2a24).fillRect(x-8,307,16,125);
-        supports.fillStyle(0x865131).fillRect(x-5,310,9,114);
-        supports.lineStyle(12,0x593528).beginPath().moveTo(x,368).lineTo(x+direction*45,315).strokePath();
-        supports.fillStyle(0x9c6440).fillRect(x-9,290,18,10);
-        supports.fillStyle(0x553526).fillRect(x-11,299,22,6);
-        supports.fillStyle(0xc19458).fillRect(x-10,303,20,3).fillRect(x-10,341,20,4);
-      }
-      for (let x=146;x<620;x+=49) this.spawn('bridge',x+24,306);
-    }
     map.objects.forEach(([type,x,y,range],i) => {
-      if (type !== 'coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i);
+      if (type==='bridge' && range) this.addBridge(x,y,range);
+      else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i);
     });
-    const exit = this.track(this.add.image(map.exit, (index === 0 ? 306 : 333),'exit').setOrigin(.5,1).setDepth(4));
-    if (index === 0) {
-      this.landingArt.push(exit, ...this.pieces.filter(piece=>piece.type!=='bridge').map(piece=>piece.sprite));
+    this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
+    if (index===0) {
+      this.landingArt.push(...this.pieces.filter(piece=>piece.x>594 && piece.x<W && piece.type!=='bridge')
+        .map(piece=>piece.sprite));
       this.landingArt.forEach(object=>object.setVisible(false));
     }
-    if (index > 0) this.track(this.add.image(map.checkpoint,(index===1?337:333),'exit').setOrigin(.5,1).setDepth(4).setTint(0xe7ac70).setScale(.66));
-    if (this.checkpoint && index > 0) {
-      const shift = Math.max(0, map.checkpoint - 370);
-      this.cameras.main.setScroll(shift,0);
-      this.scaleCamera = shift;
+    for (const x of map.checkpoints) {
+      if (index===0 && x<W) continue;
+      this.track(this.add.image(x,this.groundAt(x),'exit').setOrigin(.5,1).setDepth(4)
+        .setTint(0xe7ac70).setScale(.66));
     }
+    this.scaleCamera=this.scrollTarget(spawnX);
+    this.positionCamera();
     if (this.paused) this.physics.pause(); else this.physics.resume();
   }
-  private paintTerrain(x: number,y: number,w: number) {
+  private groundAt(x: number) {
+    return Math.max(...levels[this.index].surfaces.filter(([left,,width])=>x>=left && x<left+width)
+      .map(([,y])=>y));
+  }
+  private scrollTarget(x: number) {
+    const lookAhead=this.index===0 ? 424+281*(1-Phaser.Math.Clamp((x-705)/450,0,1)) : 424;
+    return Phaser.Math.Clamp(x-lookAhead,0,Math.max(0,levels[this.index].exit+82-W));
+  }
+  private positionCamera() {
+    this.cameras.main.setScroll(Math.round(this.scaleCamera),0);
+    this.openingScenery?.setAlpha(1-Phaser.Math.Clamp(this.scaleCamera/360,0,1));
+  }
+  private addBridge(start: number,y: number,width: number) {
+    const supports=this.track(this.add.graphics().setDepth(2));
+    for (const [x,direction] of [[start+23,1],[start+width-9,-1]]) {
+      supports.fillStyle(0x4a2a24).fillRect(x-8,y+1,16,125);
+      supports.fillStyle(0x865131).fillRect(x-5,y+4,9,114);
+      supports.lineStyle(12,0x593528).beginPath().moveTo(x,y+62).lineTo(x+direction*45,y+9).strokePath();
+      supports.fillStyle(0x9c6440).fillRect(x-9,y-16,18,10);
+      supports.fillStyle(0x553526).fillRect(x-11,y-7,22,6);
+      supports.fillStyle(0xc19458).fillRect(x-10,y-3,20,3).fillRect(x-10,y+35,20,4);
+    }
+    for (let x=start;x<start+width;x+=49) this.spawn('bridge',x+24,y);
+  }
+  private paintTerrain(x: number,y: number,w: number,depthOrder=1) {
     const palettes = [
+      [0x472b24,0x805239,0xb17a4d,0xd29b61,0x6d7a30,0xa8ac48],
       [0x302c26,0x554434,0x826043,0xb68a58,0x55723b,0x91a252],
       [0x272837,0x414050,0x626075,0x8a8599,0x57586f,0x908da9],
       [0x49302d,0x744d3c,0xa16a48,0xd59a65,0x8a573c,0xd49965],
       [0x35292d,0x56404a,0x76545a,0xae7c75,0x684b53,0xaa7971],
     ];
-    const [shadow,stone,mid,light,rim,edge]=palettes[this.index-1];
-    const graphics=this.track(this.add.graphics().setDepth(1));
+    const [shadow,stone,mid,light,rim,edge]=palettes[this.index];
+    const graphics=this.track(this.add.graphics().setDepth(depthOrder));
     const tall=y>=300;
-    const depth=tall?H-y+4:22;
+    const depth=tall ? H-y+4 : this.index===0 && y<=240 ? 14 : 22;
     const pattern=new Phaser.Math.RandomDataGenerator([`${this.index}:${x}:${y}`]);
 
     graphics.fillStyle(shadow).fillRect(x,y,w,depth);
@@ -336,12 +369,23 @@ class Adventure extends Phaser.Scene {
         if (type==='coin') {
           this.collected.add(id);
           sprite.disableBody(true,true);
+          this.syncCoinCount();
+          this.coinSpark.emitParticleAt(sprite.x,sprite.y,7);
+          const popup=this.add.text(sprite.x,sprite.y-13,'+1',{
+            fontFamily:'Pixelify Sans, monospace',fontSize:'18px',color:'#ffdf83',stroke:'#382521',strokeThickness:3,
+          }).setOrigin(.5,1).setDepth(11);
+          this.actors.push(popup);
+          this.tweens.add({targets:popup,y:popup.y-29,alpha:0,duration:480,ease:'Quad.Out',onComplete:()=>{
+            Phaser.Utils.Array.Remove(this.actors,popup);
+            popup.destroy();
+          }});
           sound(690,.12,990);
         } else if (piece.state===0) {
           piece.state=1;
-          piece.timer=this.clock+525;
+          piece.timer=this.clock+250;
           sprite.setTexture('spike').setY(y+15).setTint(0xffbe77);
-          body.setSize(37,22,true);
+          body.setSize(37,22,true).updateFromGameObject();
+          this.coinSpark.emitParticleAt(sprite.x,y,5);
           sound(165,.18,105);
         } else if (piece.state===2) this.die();
         return;
@@ -362,6 +406,10 @@ class Adventure extends Phaser.Scene {
         }
       } else if (this.clock>=piece.timer || type!=='boss') this.die();
     }));
+  }
+  private syncCoinCount() {
+    coins.hidden=this.collected.size===0;
+    coins.textContent=`Coins ${this.collected.size}`;
   }
   private say(line: string) {
     caption.textContent = line;
@@ -402,7 +450,7 @@ class Adventure extends Phaser.Scene {
     enterDefaultFullscreen();
     this.onTitle = false;
     this.started = true;
-    this.checkpoint = false;
+    this.checkpoint = undefined;
     this.deaths = 0;
     this.collected.clear();
     this.paused = false;
@@ -592,14 +640,15 @@ class Adventure extends Phaser.Scene {
     this.syncHero(seconds,this.wasGrounded);
     if (this.player.y>H+46) { this.die(); return; }
     const map=levels[this.index];
-    const startScroll=this.index===0?705:424;
-    const maxScroll=Math.max(0,map.exit+82-W);
-    const scroll=this.index===0 ? 0 : Phaser.Math.Clamp(this.player.x-startScroll,0,maxScroll);
-    this.scaleCamera=Phaser.Math.Linear(this.scaleCamera,scroll,Math.min(1,seconds*8));
-    this.cameras.main.setScroll(Math.round(this.scaleCamera),0);
-    if (floor && this.player.x>=map.checkpoint && this.player.x<map.checkpoint+57 && !this.checkpoint) {
-      this.checkpoint=true;
-      sound(525,.16,760);
+    this.scaleCamera=Phaser.Math.Linear(this.scaleCamera,this.scrollTarget(this.player.x),Math.min(1,seconds*8));
+    this.positionCamera();
+    if (floor) {
+      const marker=map.checkpoints.find(x=>x>(this.checkpoint ?? -1) &&
+        this.player.x>=x && this.player.x<x+57 && Math.abs(body.bottom-this.groundAt(x))<=3);
+      if (marker!==undefined) {
+        this.checkpoint=marker;
+        sound(525,.16,760);
+      }
     }
     if (this.captionUntil && this.clock>this.captionUntil) {
       this.captionUntil=0;

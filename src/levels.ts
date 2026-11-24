@@ -5,7 +5,7 @@ type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number];
 interface Level {
   tint: number;
   start: number;
-  checkpoint: number;
+  checkpoints: number[];
   exit: number;
   surfaces: Surface[];
   objects: ObjectData[];
@@ -34,7 +34,7 @@ function readMap(source: string): Level {
   return {
     tint: Number(property(map.properties, 'tint')),
     start: point('start'),
-    checkpoint: point('checkpoint'),
+    checkpoints: objects.filter(item => item.type === 'checkpoint').map(item => item.x),
     exit: point('exit'),
     surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
     objects: objects.filter(({type}) => kinds.has(type)).map(item =>
