@@ -1,0 +1,48 @@
+export type Surface = readonly [x: number, y: number, width: number];
+export type Kind = 'bridge' | 'bait' | 'spikes' | 'falling' | 'chase' | 'enemy' | 'hopper' | 'flyer' | 'coin' | 'fakeExit' | 'boss';
+type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number];
+
+interface Level {
+  name: string;
+  tint: number;
+  start: number;
+  checkpoint: number;
+  exit: number;
+  surfaces: Surface[];
+  objects: ObjectData[];
+  lines: Array<readonly [number, string]>;
+}
+
+interface Property { name: string; value: string | number }
+interface MapObject { type: string; x: number; y: number; width: number; properties?: Property[] }
+interface TiledMap { properties: Property[]; layers: Array<{name: string; objects: MapObject[]}> }
+
+const files = import.meta.glob<string>('./maps/*.tmj', { query: '?raw', eager: true, import: 'default' });
+const property = (properties: Property[] | undefined, name: string) =>
+  properties?.find(item => item.name === name)?.value;
+
+const kinds = new Set<string>(['bridge','bait','spikes','falling','chase','enemy','hopper','flyer','coin','fakeExit','boss']);
+
+function readMap(source: string): Level {
+  const map: TiledMap = JSON.parse(source);
+  const layer = (name: string) => map.layers.find(item => item.name === name)?.objects ?? [];
+  const objects = layer('Objects');
+  const point = (type: string) => {
+    const marker = objects.find(item => item.type === type);
+    if (!marker) throw new Error(`Level needs a ${type} object`);
+    return marker.x;
+  };
+  return {
+    name: String(property(map.properties, 'name')),
+    tint: Number(property(map.properties, 'tint')),
+    start: point('start'),
+    checkpoint: point('checkpoint'),
+    exit: point('exit'),
+    surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
+    objects: objects.filter(({type}) => kinds.has(type)).map(item =>
+      [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0)]),
+    lines: layer('Narrator').map(item => [item.x, String(property(item.properties, 'text'))]),
+  };
+}
+
+export const levels = Object.keys(files).sort().map(file => readMap(files[file]));

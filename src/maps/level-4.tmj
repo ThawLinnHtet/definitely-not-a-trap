@@ -1,0 +1,270 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.11.0",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tilewidth": 16,
+  "tileheight": 16,
+  "width": 108,
+  "height": 30,
+  "infinite": false,
+  "nextlayerid": 4,
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "value": "Run for Your Life"
+    },
+    {
+      "name": "tint",
+      "type": "int",
+      "value": 15975817
+    }
+  ],
+  "layers": [
+    {
+      "id": 1,
+      "name": "Surfaces",
+      "objects": [
+        {
+          "id": 1,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 333,
+          "width": 533,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 2,
+          "name": "",
+          "type": "",
+          "x": 609,
+          "y": 333,
+          "width": 280,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 3,
+          "name": "",
+          "type": "",
+          "x": 970,
+          "y": 333,
+          "width": 256,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 4,
+          "name": "",
+          "type": "",
+          "x": 1305,
+          "y": 333,
+          "width": 387,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 5,
+          "name": "",
+          "type": "",
+          "x": 1044,
+          "y": 261,
+          "width": 71,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 2,
+      "name": "Objects",
+      "objects": [
+        {
+          "id": 6,
+          "name": "",
+          "type": "start",
+          "x": 62,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 7,
+          "name": "",
+          "type": "checkpoint",
+          "x": 184,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 8,
+          "name": "",
+          "type": "exit",
+          "x": 1620,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 9,
+          "name": "",
+          "type": "chase",
+          "x": 218,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "name": "",
+          "type": "falling",
+          "x": 431,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "name": "",
+          "type": "falling",
+          "x": 740,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "name": "",
+          "type": "coin",
+          "x": 1069,
+          "y": 232,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "name": "",
+          "type": "falling",
+          "x": 1436,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 3,
+      "name": "Narrator",
+      "objects": [
+        {
+          "id": 14,
+          "name": "",
+          "type": "caption",
+          "x": 184,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "Run. We can discuss the details later."
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    }
+  ],
+  "tilesets": [],
+  "nextobjectid": 15
+}

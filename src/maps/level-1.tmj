@@ -1,0 +1,229 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.11.0",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tilewidth": 16,
+  "tileheight": 16,
+  "width": 57,
+  "height": 30,
+  "infinite": false,
+  "nextlayerid": 4,
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "value": "Easy Peasy"
+    },
+    {
+      "name": "tint",
+      "type": "int",
+      "value": 16777215
+    }
+  ],
+  "layers": [
+    {
+      "id": 1,
+      "name": "Surfaces",
+      "objects": [
+        {
+          "id": 1,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 306,
+          "width": 153,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 2,
+          "name": "",
+          "type": "",
+          "x": 620,
+          "y": 306,
+          "width": 216,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 3,
+          "name": "",
+          "type": "",
+          "x": 704,
+          "y": 239,
+          "width": 77,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 2,
+      "name": "Objects",
+      "objects": [
+        {
+          "id": 4,
+          "name": "",
+          "type": "start",
+          "x": 37,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 5,
+          "name": "",
+          "type": "checkpoint",
+          "x": 105,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 6,
+          "name": "",
+          "type": "exit",
+          "x": 800,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 7,
+          "name": "",
+          "type": "enemy",
+          "x": 700,
+          "y": 306,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 42
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "name": "",
+          "type": "coin",
+          "x": 662,
+          "y": 269,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "name": "",
+          "type": "coin",
+          "x": 750,
+          "y": 200,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 3,
+      "name": "Narrator",
+      "objects": [
+        {
+          "id": 10,
+          "name": "",
+          "type": "caption",
+          "x": 38,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "Take the high path after the bridge."
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "name": "",
+          "type": "caption",
+          "x": 146,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "I checked this bridge myself."
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    }
+  ],
+  "tilesets": [],
+  "nextobjectid": 12
+}

@@ -1,0 +1,349 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.11.0",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tilewidth": 16,
+  "tileheight": 16,
+  "width": 99,
+  "height": 30,
+  "infinite": false,
+  "nextlayerid": 4,
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "value": "Trust Issues"
+    },
+    {
+      "name": "tint",
+      "type": "int",
+      "value": 12050350
+    }
+  ],
+  "layers": [
+    {
+      "id": 1,
+      "name": "Surfaces",
+      "objects": [
+        {
+          "id": 1,
+          "name": "",
+          "type": "",
+          "x": 0,
+          "y": 337,
+          "width": 470,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 2,
+          "name": "",
+          "type": "",
+          "x": 471,
+          "y": 337,
+          "width": 245,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 3,
+          "name": "",
+          "type": "",
+          "x": 798,
+          "y": 337,
+          "width": 214,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 4,
+          "name": "",
+          "type": "",
+          "x": 1083,
+          "y": 337,
+          "width": 457,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 5,
+          "name": "",
+          "type": "",
+          "x": 195,
+          "y": 271,
+          "width": 117,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 6,
+          "name": "",
+          "type": "",
+          "x": 338,
+          "y": 235,
+          "width": 125,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 7,
+          "name": "",
+          "type": "",
+          "x": 810,
+          "y": 266,
+          "width": 105,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 2,
+      "name": "Objects",
+      "objects": [
+        {
+          "id": 8,
+          "name": "",
+          "type": "start",
+          "x": 55,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 9,
+          "name": "",
+          "type": "checkpoint",
+          "x": 475,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 10,
+          "name": "",
+          "type": "exit",
+          "x": 1480,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 11,
+          "name": "",
+          "type": "bait",
+          "x": 355,
+          "y": 308,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "name": "",
+          "type": "coin",
+          "x": 240,
+          "y": 244,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "name": "",
+          "type": "coin",
+          "x": 395,
+          "y": 205,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "",
+          "type": "hopper",
+          "x": 604,
+          "y": 337,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 62
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "",
+          "type": "enemy",
+          "x": 928,
+          "y": 337,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 36
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "",
+          "type": "spikes",
+          "x": 1204,
+          "y": 337,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "",
+          "type": "coin",
+          "x": 1320,
+          "y": 300,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "range",
+              "type": "int",
+              "value": 0
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    },
+    {
+      "id": 3,
+      "name": "Narrator",
+      "objects": [
+        {
+          "id": 18,
+          "name": "",
+          "type": "caption",
+          "x": 84,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "Stay low. All the good coins are down here."
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "name": "",
+          "type": "caption",
+          "x": 1100,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "The floor is perfectly ordinary."
+            }
+          ]
+        }
+      ],
+      "type": "objectgroup",
+      "opacity": 1,
+      "visible": true,
+      "x": 0,
+      "y": 0,
+      "draworder": "topdown"
+    }
+  ],
+  "tilesets": [],
+  "nextobjectid": 20
+}
