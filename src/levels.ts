@@ -3,7 +3,6 @@ export type Kind = 'bridge' | 'bait' | 'spikes' | 'falling' | 'chase' | 'enemy' 
 type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number];
 
 interface Level {
-  name: string;
   tint: number;
   start: number;
   checkpoint: number;
@@ -33,7 +32,6 @@ function readMap(source: string): Level {
     return marker.x;
   };
   return {
-    name: String(property(map.properties, 'name')),
     tint: Number(property(map.properties, 'tint')),
     start: point('start'),
     checkpoint: point('checkpoint'),

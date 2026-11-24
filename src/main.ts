@@ -7,6 +7,10 @@ import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
 const H = 470;
+function levelLabel(index: number) {
+  return `Level ${index + 1}`;
+}
+
 const saveKey = 'definitely-not-a-trap-progress';
 const hud = document.querySelector<HTMLElement>('#hud')!;
 const label = document.querySelector<HTMLElement>('#level')!;
@@ -212,7 +216,7 @@ class Adventure extends Phaser.Scene {
     this.captionUntil = 0;
     this.scaleCamera = 0;
     caption.textContent = '';
-    label.textContent = map.name;
+    label.textContent = levelLabel(index);
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
     const scenery = index===0 ? this.add.image(0,0,'landscape') : this.add.image(0,0,'worlds',`world-${index}`);
@@ -416,7 +420,7 @@ class Adventure extends Phaser.Scene {
   }
   private select() {
     showMenu('Level Select','Arrow keys or A / D to move. Space, W or ↑ to jump.', [
-      ...levels.map((level,i)=>({title:level.name, run:()=>this.start(i), disabled:i>unlocked})),
+      ...levels.map((_, index)=>({title:levelLabel(index), run:()=>this.start(index), disabled:index>unlocked})),
       {title:'Back',run:()=>this.title()},
     ]);
   }
@@ -446,7 +450,7 @@ class Adventure extends Phaser.Scene {
     unlocked = Math.max(unlocked,Math.min(this.index+1,levels.length-1));
     saveProgress();
     sound(550,.24,880);
-    showMenu(last?'Adventure Complete':`${levels[this.index].name} Clear`,`Deaths ${this.deaths} · Coins ${this.collected.size}`,[
+    showMenu(last?'Adventure Complete':`${levelLabel(this.index)} Clear`,`Deaths ${this.deaths} · Coins ${this.collected.size}`,[
       {title:last?'Level Select':'Next Level',run:()=>last?this.select():this.start(this.index+1)},
       {title:'Play Again',run:()=>this.start(this.index)},
       {title:'Main Menu',run:()=>this.title()},
