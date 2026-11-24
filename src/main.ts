@@ -7,6 +7,7 @@ import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
 const H = 470;
+const CAMERA_ZOOM = .89;
 function levelLabel(index: number) {
   return `Level ${index + 1}`;
 }
@@ -100,8 +101,7 @@ class Adventure extends Phaser.Scene {
   private dust!: Phaser.GameObjects.Particles.ParticleEmitter;
   private coinSpark!: Phaser.GameObjects.Particles.ParticleEmitter;
   private scenery!: Phaser.GameObjects.Image;
-  private openingBleed?: Phaser.GameObjects.Image;
-  private openingScenery?: Phaser.GameObjects.Image;
+  private openingScenery?: Phaser.GameObjects.Container;
   private captionUntil = 0;
   private clock = 0;
   private scaleCamera = 0;
@@ -234,12 +234,7 @@ class Adventure extends Phaser.Scene {
     this.draw.clear();
     this.scenery=this.track(this.add.image(0,0,'worlds',`world-${index || 1}`)
       .setOrigin(0).setScrollFactor(0).setDepth(-6));
-    this.openingBleed=index===0
-      ? this.track(this.add.image(0,0,'landscape').setOrigin(0).setScrollFactor(0).setDepth(-5.75))
-      : undefined;
-    this.openingScenery = index===0
-      ? this.track(this.add.image(0,0,'landscape').setOrigin(0).setDisplaySize(W,H).setDepth(-5))
-      : undefined;
+    this.openingScenery=index===0 ? this.makeOpeningScenery() : undefined;
     this.terrain = this.physics.add.staticGroup();
     for (const [x,y,w] of map.surfaces) {
       const surfaceDepth=index===0 && y<=240 ? 14 : 36;
@@ -303,22 +298,33 @@ class Adventure extends Phaser.Scene {
     if (!width || !height || !this.player) return;
 
     // Keep pixel proportions and reveal more scenery on larger aspect ratios.
-    const zoom=Math.min(width/520,height/H);
+    const zoom=Math.min(width/520,height/H)*CAMERA_ZOOM;
     const viewWidth=width/zoom;
     const viewHeight=height/zoom;
-    const centerX=viewWidth>=W ? this.scaleCamera+W/2 : Phaser.Math.Clamp(
+    const openingLookAhead=this.index===0
+      ? Math.min(Math.max(0,viewWidth-W)/2,W*.14)*(1-Phaser.Math.Clamp(this.scaleCamera/W,0,1))
+      : 0;
+    const centerX=viewWidth>=W ? this.scaleCamera+W/2+openingLookAhead : Phaser.Math.Clamp(
       this.player.x+viewWidth*.08,this.scaleCamera+viewWidth/2,this.scaleCamera+W-viewWidth/2,
     );
-    camera.setZoom(zoom).setScroll(centerX-width/2,(H-height)/2);
+    const skyRoom=Math.min(Math.max(0,viewHeight-H)/2,H*.14);
+    camera.setZoom(zoom).setScroll(centerX-width/2,(H-height)/2-skyRoom);
 
     this.fitScenery(this.scenery,width,height,viewWidth,viewHeight,
       Math.min(100,this.scaleCamera*(this.index===0 ? .014 : .09)),100);
     const openingAlpha=1-Phaser.Math.Clamp(this.scaleCamera/360,0,1);
-    this.openingScenery?.setAlpha(openingAlpha);
-    if (this.openingBleed) {
-      this.fitScenery(this.openingBleed,width,height,viewWidth,viewHeight,0,0);
-      this.openingBleed.setAlpha(openingAlpha);
+    this.openingScenery?.setAlpha(openingAlpha).setVisible(openingAlpha>0);
+  }
+  private makeOpeningScenery() {
+    const backdrop=this.track(this.add.container(0,0).setDepth(-5));
+    // Reflect edge pixels into the wider camera view while keeping terrain aligned.
+    for (const row of [-1,0,1]) {
+      for (const col of [-1,0,1]) {
+        backdrop.add(this.add.image((col+.5)*W,(row+.5)*H,'landscape')
+          .setDisplaySize(W,H).setFlip(col!==0,row!==0));
+      }
     }
+    return backdrop;
   }
   private fitScenery(image: Phaser.GameObjects.Image,width: number,height: number,
     viewWidth: number,viewHeight: number,pan: number,overscan: number) {
