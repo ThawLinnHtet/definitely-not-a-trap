@@ -4,6 +4,9 @@
 <meta name="description" content="Definitely Not a Trap! A five-level pixel-art platformer.">
 <title>Definitely Not a Trap!</title></head>
 <body><div id="screen"><main id="game" aria-label="Definitely Not a Trap! game"><div id="stage"></div>
-<div id="hud" aria-label="Game information"><div id="level" class="panel"></div><div id="deaths" class="panel" aria-live="polite"></div><div id="coins" class="panel" hidden></div><div id="caption" class="panel" role="status" aria-live="polite"></div></div>
+<div id="hud" aria-label="Game information"><div id="level" class="panel"></div><div id="coins" class="panel" hidden></div><div id="caption" class="panel" role="status" aria-live="polite"></div></div>
 <div id="overlay" hidden><section class="panel" id="menu" aria-label="Game menu"></section></div>
+<div id="lives-screen" hidden>
+  <div class="lives-summary" role="status" aria-atomic="true"><span class="lives-hero" aria-hidden="true"></span><span id="lives-count" aria-hidden="true"></span><span id="lives-announcement" class="lives-announcement"></span></div>
+</div>
 </main></div><script type="module" src="/src/main.ts"></script></body></html>

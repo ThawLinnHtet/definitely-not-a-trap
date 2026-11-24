@@ -5,7 +5,7 @@ body{margin:0;overflow:hidden}
 #screen:fullscreen{width:100%;height:100%}
 #screen::backdrop{background:#151510}
 #game{position:relative;width:100%;height:100%;overflow:hidden;container-type:inline-size;background:#6ba7ef}
-#stage,#hud,#overlay{position:absolute;inset:0}
+#stage,#hud,#overlay,#lives-screen{position:absolute;inset:0}
 canvas{display:block;image-rendering:pixelated}
 #hud{pointer-events:none}
 .panel{background:#31211b;border:.23cqw solid #c69a66;outline:.22cqw solid #231711;box-shadow:inset 0 0 0 .32cqw #60432f,0 .27cqw 0 #241711;color:#fff0ca;clip-path:polygon(.52cqw 0,calc(100% - .52cqw) 0,calc(100% - .52cqw) .27cqw,100% .27cqw,100% calc(100% - .27cqw),calc(100% - .52cqw) calc(100% - .27cqw),calc(100% - .52cqw) 100%,.52cqw 100%,.52cqw calc(100% - .27cqw),0 calc(100% - .27cqw),0 .27cqw,.52cqw .27cqw)}
@@ -13,9 +13,12 @@ canvas{display:block;image-rendering:pixelated}
 #level{left:.96cqw;top:.96cqw;min-width:11.75cqw;height:max(22px,3cqw);padding:0 .9cqw;font-size:clamp(11px,1.76cqw,34px)}
 #caption{left:50%;transform:translateX(-50%);top:3.3cqw;min-width:39cqw;min-height:4.4cqw;max-width:86%;padding:.58cqw 1.85cqw;font-size:clamp(12px,2.05cqw,40px);letter-spacing:.065em;text-align:center;white-space:normal}
 #caption:empty,#level:empty,#coins[hidden]{display:none}
-#coins,#deaths{position:absolute;padding:.5cqw .9cqw;font-weight:bold;font-size:clamp(11px,1.47cqw,29px);line-height:1.25;font-variant-numeric:tabular-nums}
-#coins{right:.96cqw;top:.96cqw}
-#deaths{left:.96cqw;top:calc(.96cqw + max(22px,3cqw) + .45cqw);min-width:11.75cqw;text-align:center;transform-origin:left center}
+#coins{position:absolute;right:.96cqw;top:.96cqw;padding:.5cqw .9cqw;font-weight:bold;font-size:clamp(11px,1.47cqw,29px);line-height:1.25;font-variant-numeric:tabular-nums}
+#lives-screen{display:grid;place-items:center;background:#16110f;color:#fff0ca}
+#lives-screen[hidden]{display:none}
+.lives-summary{display:flex;align-items:center;gap:clamp(10px,1.15cqw,20px);font-size:clamp(28px,4.6cqw,66px);font-weight:700;line-height:1}
+.lives-hero{width:clamp(58px,7.5cqw,115px);aspect-ratio:3/4;background:url('/art/adventurer-motion.png') 0 0/400% 200% no-repeat;image-rendering:pixelated}
+.lives-announcement{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 #overlay{display:grid;place-items:center;background:#1b172293;padding:1.5rem}
 #overlay[hidden]{display:none}
 #menu{width:min(clamp(250px,39cqw,560px),88cqw);max-height:100%;overflow:auto;text-align:center;padding:2.1cqw 2.4cqw}

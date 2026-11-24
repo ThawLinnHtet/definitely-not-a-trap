@@ -10,6 +10,8 @@ const H = 470;
 const CAMERA_ZOOM = .89;
 const ROCK_WARNING_MS = 130;
 const ROCK_TRIGGER_RANGE = 76;
+const STARTING_LIVES = 2;
+const LIVES_SCREEN_MS = 485;
 function levelLabel(index: number) {
   return `Level ${index + 1}`;
 }
@@ -18,7 +20,9 @@ const saveKey = 'definitely-not-a-trap-progress';
 const hud = document.querySelector<HTMLElement>('#hud')!;
 const label = document.querySelector<HTMLElement>('#level')!;
 const coins = document.querySelector<HTMLElement>('#coins')!;
-const deaths = document.querySelector<HTMLElement>('#deaths')!;
+const livesScreen = document.querySelector<HTMLElement>('#lives-screen')!;
+const livesCount = document.querySelector<HTMLElement>('#lives-count')!;
+const livesAnnouncement = document.querySelector<HTMLElement>('#lives-announcement')!;
 const caption = document.querySelector<HTMLElement>('#caption')!;
 const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const menu = document.querySelector<HTMLElement>('#menu')!;
@@ -87,7 +91,7 @@ function closeMenu() {
 class Adventure extends Phaser.Scene {
   private index = 0;
   private checkpoint?: number;
-  private deaths = 0;
+  private lives = STARTING_LIVES;
   private collected = new Set<number>();
   private paused = true;
   private dead = false;
@@ -138,7 +142,7 @@ class Adventure extends Phaser.Scene {
     this.draw = this.add.graphics().setDepth(6);
     this.keys = this.input.keyboard!.addKeys('LEFT,RIGHT,UP,A,D,W,SPACE,ESC,R') as typeof this.keys;
     const togglePause = (event: KeyboardEvent) => {
-      if (event.repeat || this.onTitle || this.dead || this.finishOpen) return;
+      if (event.repeat || this.onTitle || this.dead || this.finishOpen || !livesScreen.hidden) return;
       if (event.code === 'Escape' && document.fullscreenElement) return;
       event.preventDefault();
       if (this.paused) this.resumeGame(); else this.pauseGame();
@@ -146,10 +150,10 @@ class Adventure extends Phaser.Scene {
     this.input.keyboard!.on('keydown-ESC', togglePause);
     this.input.keyboard!.on('keydown-P', togglePause);
     this.input.keyboard!.on('keydown-R', () => {
-      if (!this.paused && !this.dead && !this.finishOpen) this.die();
+      if (!this.paused && !this.dead && !this.finishOpen && livesScreen.hidden) this.die();
     });
     this.game.events.on(Phaser.Core.Events.BLUR, () => {
-      if (!this.paused && !this.dead && !this.finishOpen) this.pauseGame();
+      if (!this.paused && !this.dead && !this.finishOpen && livesScreen.hidden) this.pauseGame();
     });
     this.loadLevel(0);
     this.scale.on(Phaser.Scale.Events.RESIZE,this.positionCamera,this);
@@ -240,7 +244,7 @@ class Adventure extends Phaser.Scene {
     caption.textContent = '';
     label.textContent = levelLabel(index);
     this.syncCoinCount();
-    deaths.textContent=`Deaths ${this.deaths}`;
+    livesScreen.hidden=true;
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
     this.scenery=this.track(this.add.image(0,0,'worlds',`world-${index || 1}`)
@@ -495,8 +499,7 @@ class Adventure extends Phaser.Scene {
   private die(sourceX?: number) {
     if (this.dead || this.paused) return;
     this.dead=true;
-    this.deaths++;
-    deaths.textContent=`Deaths ${this.deaths}`;
+    this.lives--;
     this.physics.pause();
 
     const {hero}=this;
@@ -509,27 +512,40 @@ class Adventure extends Phaser.Scene {
     sound(208,.26,61);
 
     if (reducedMotion) {
-      this.tweens.add({targets:hero,alpha:0,duration:280,onComplete:()=>this.loadLevel(this.index)});
+      this.tweens.add({targets:hero,alpha:0,duration:280,onComplete:()=>this.retryAfterDeath()});
       return;
     }
 
-    deaths.animate([{transform:'scale(1.17)',color:'#ffd38c'},{transform:'scale(1)'}],{duration:320});
     this.cameras.main.shake(120,.004);
     this.tweens.chain({targets:hero,tweens:[
       {x:x+away*16,y:y-33,angle:away*22,scaleX:.25,scaleY:.22,duration:105,ease:'Quad.Out'},
       {x:x+away*37,y:y+76,angle:away*105,alpha:.14,scaleX:.21,scaleY:.21,duration:285,ease:'Quad.In'},
-    ],onComplete:()=>this.loadLevel(this.index)});
+    ],onComplete:()=>this.retryAfterDeath()});
   }
-  private start(index: number) {
+  private retryAfterDeath() {
+    this.showLives(()=>this.loadLevel(this.index));
+  }
+  private showLives(resume: () => void) {
+    this.physics.pause();
+    livesCount.textContent=`× ${this.lives}`;
+    livesAnnouncement.textContent=`${this.lives} ${Math.abs(this.lives)===1 ? 'life' : 'lives'}`;
+    livesScreen.hidden=false;
+    this.time.delayedCall(LIVES_SCREEN_MS,()=>{
+      livesScreen.hidden=true;
+      resume();
+    });
+  }
+  private start(index: number, freshRun = true) {
     this.onTitle = false;
     this.started = true;
     this.checkpoint = undefined;
-    this.deaths = 0;
+    if (freshRun) this.lives=STARTING_LIVES;
     this.collected.clear();
     this.paused = false;
     closeMenu();
     hud.hidden = false;
     this.loadLevel(index);
+    this.showLives(()=>this.physics.resume());
     sound(385,.13,540);
   }
   private title() {
@@ -552,9 +568,9 @@ class Adventure extends Phaser.Scene {
   private pauseGame() {
     this.paused=true;
     this.physics.pause();
-    showMenu('Paused', `Deaths ${this.deaths} · Coins ${this.collected.size} · P to resume`,[
+    showMenu('Paused', `Coins ${this.collected.size} · P to resume`,[
       {title:'Resume',run:()=>this.resumeGame()},
-      {title:'Restart Level',run:()=>this.start(this.index)},
+      {title:'Restart Level',run:()=>this.start(this.index,false)},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.pauseGame(); }},
       {title:'Main Menu',run:()=>{ this.started=false; this.title(); }},
     ]);
@@ -575,9 +591,9 @@ class Adventure extends Phaser.Scene {
     unlocked = Math.max(unlocked,Math.min(this.index+1,levels.length-1));
     saveProgress();
     sound(550,.24,880);
-    showMenu(last?'Adventure Complete':`${levelLabel(this.index)} Clear`,`Deaths ${this.deaths} · Coins ${this.collected.size}`,[
-      {title:last?'Level Select':'Next Level',run:()=>last?this.select():this.start(this.index+1)},
-      {title:'Play Again',run:()=>this.start(this.index)},
+    showMenu(last?'Adventure Complete':`${levelLabel(this.index)} Clear`,`Coins ${this.collected.size}`,[
+      {title:last?'Level Select':'Next Level',run:()=>last?this.select():this.start(this.index+1,false)},
+      {title:'Play Again',run:()=>this.start(this.index,false)},
       {title:'Main Menu',run:()=>this.title()},
     ]);
   }
@@ -671,7 +687,7 @@ class Adventure extends Phaser.Scene {
     }
   }
   update(_time: number,delta: number) {
-    if (!this.player || this.paused || this.dead || this.finishOpen) return;
+    if (!this.player || this.paused || this.dead || this.finishOpen || !livesScreen.hidden) return;
     this.clock+=delta;
     const seconds=Math.min(delta,48)/1000;
     const k=this.keys;
