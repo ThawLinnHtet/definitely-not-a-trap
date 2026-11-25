@@ -31,6 +31,8 @@ const overlay = document.querySelector<HTMLElement>('#overlay')!;
 const menu = document.querySelector<HTMLElement>('#menu')!;
 type Sprite = Phaser.Physics.Arcade.Image;
 type Piece = { type: Kind; sprite: Sprite; x: number; y: number; range: number; warningMs: number; timer: number; direction: number; state: number };
+type RailPlatform = { sprite: Sprite; left: number; right: number; channel: string; direction: number };
+type PressureSwitch = { sprite: Phaser.GameObjects.Image; rail: RailPlatform; offset: number | null; y: number; pressed: boolean };
 let unlocked = 0;
 let muted = false;
 try {
@@ -126,11 +128,14 @@ class Adventure extends Phaser.Scene {
   private actors: Phaser.GameObjects.GameObject[] = [];
   private landingArt: Phaser.GameObjects.Components.Visible[] = [];
   private colliders: Phaser.Physics.Arcade.Collider[] = [];
+  private railPlatforms: RailPlatform[] = [];
+  private pressureSwitches: PressureSwitch[] = [];
 
   constructor() { super('adventure'); }
   preload() {
     this.load.image('landscape', '/art/grassland.png');
     this.load.image('worlds', '/art/adventure-worlds.png');
+    this.load.image('clockworks', '/art/clockworks.png');
     this.load.image(heroTexture, '/art/adventurer-motion.png');
   }
   create() {
@@ -172,6 +177,16 @@ class Adventure extends Phaser.Scene {
     texture('body',30,51,()=>fill(0xffffff,0,0,30,51));
     texture('dust',7,5,()=>{
       fill(0xb78c61,0,2,7,3); fill(0xe1bf8e,2,0,3,4);
+    });
+    texture('rail-platform',100,17,()=>{
+      fill(0x312b32,0,2,100,15); fill(0x805942,4,4,92,10);
+      fill(0xebba74,2,0,96,4); fill(0xa67c51,7,5,86,2);
+      for (let x=8;x<94;x+=21) {
+        fill(0x473844,x,8,12,6); fill(0xe2a666,x+3,8,5,4);
+      }
+    });
+    texture('pressure-switch',24,7,()=>{
+      fill(0x372d32,0,3,24,4); fill(0xbe562d,2,1,20,4);fill(0xffbd68,5,0,14,2);
     });
     texture('plank',50,19,()=>{
       fill(0x432820,0,2,50,17); fill(0x825334,2,5,46,11); fill(0xc58e50,1,1,47,5);
@@ -227,6 +242,8 @@ class Adventure extends Phaser.Scene {
     const map = levels[index];
     for (const collider of this.colliders) collider.destroy();
     this.colliders = [];
+    this.railPlatforms=[];
+    this.pressureSwitches=[];
     this.terrain?.destroy(true);
     this.actors.forEach(object => object.destroy());
     this.actors = [];
@@ -251,8 +268,8 @@ class Adventure extends Phaser.Scene {
     livesScreen.hidden=true;
     this.cameras.main.setScroll(0,0);
     this.draw.clear();
-    this.scenery=this.track(this.add.image(0,0,'worlds',`world-${index || 1}`)
-      .setOrigin(0).setScrollFactor(0).setDepth(-6));
+    const scenery=index===5 ? this.add.image(0,0,'clockworks') : this.add.image(0,0,'worlds',`world-${index || 1}`);
+    this.scenery=this.track(scenery.setOrigin(0).setScrollFactor(0).setDepth(-6));
     this.openingScenery=index===0 ? this.makeOpeningScenery() : undefined;
     this.terrain = this.physics.add.staticGroup();
     for (const [x,y,w] of map.surfaces) {
@@ -284,6 +301,13 @@ class Adventure extends Phaser.Scene {
     }).setDepth(10));
     this.syncHero();
     this.colliders.push(this.physics.add.collider(this.player,this.terrain));
+    for (const {x,y,travel,channel} of map.platforms) this.addRailPlatform(x,y,travel,channel);
+    for (const {x,y,channel,mounted} of map.switches) {
+      const rail=this.railPlatforms.find(platform=>platform.channel===channel);
+      if (!rail) continue;
+      const sprite=this.track(this.add.image(x,y,'pressure-switch').setOrigin(.5,1).setDepth(5));
+      this.pressureSwitches.push({sprite,rail,offset:mounted?x-rail.left:null,y,pressed:false});
+    }
     map.objects.forEach(([type,x,y,range,warningMs],i) => {
       if (type==='bridge' && range) this.addBridge(x,y,range);
       else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i,warningMs);
@@ -354,6 +378,51 @@ class Adventure extends Phaser.Scene {
       (width-image.width*scale+overscan)/2-pan,(height-image.height*scale)/2,
     );
   }
+  private addRailPlatform(x: number,y: number,travel: number,channel: string) {
+    const sprite=this.track(this.physics.add.image(x,y+8.5,'rail-platform')).setImmovable(true).setDepth(3);
+    const deck=sprite.body as Phaser.Physics.Arcade.Body;
+    deck.setAllowGravity(false).setFrictionX(1);
+    const track=this.track(this.add.graphics().setDepth(2));
+    track.fillStyle(0x392f3a).fillRect(x,y+28,travel,5);
+    track.fillStyle(0x96755b).fillRect(x,y+27,travel,2);
+    for (const stop of [x,x+travel]) track.fillStyle(0xbe945f).fillRect(stop-3,y+23,6,12);
+
+    this.railPlatforms.push({sprite,left:x,right:x+travel,channel,direction:1});
+    this.colliders.push(this.physics.add.collider(this.player,sprite,undefined,()=>{
+      const rider=this.player.body as Phaser.Physics.Arcade.Body;
+      return rider.velocity.y>=0 && rider.prev.y+rider.height<=deck.top+4;
+    }));
+  }
+  private updateRails() {
+    const player=this.player.body as Phaser.Physics.Arcade.Body;
+    for (const plate of this.pressureSwitches) {
+      const {sprite,rail,offset,y}=plate;
+      if (offset!==null) sprite.setX(rail.sprite.x+offset);
+      const pressed=Math.abs(player.center.x-sprite.x)<14 && Math.abs(player.bottom-y)<4
+        && (player.blocked.down||player.touching.down);
+      if (pressed===plate.pressed) continue;
+      if (pressed) {
+        rail.direction*=-1;
+        sprite.setTint(0xffddb0);
+        sound(380,.13,160);
+      } else sprite.clearTint();
+      sprite.setY(y+(pressed?2:0));
+      plate.pressed=pressed;
+    }
+    for (const rail of this.railPlatforms) {
+      const {sprite,left,right}=rail;
+      const body=sprite.body as Phaser.Physics.Arcade.Body;
+      const x=body.center.x;
+      if (x<=left && rail.direction<0) {
+        body.reset(left,sprite.y);
+        rail.direction=1;
+      } else if (x>=right && rail.direction>0) {
+        body.reset(right,sprite.y);
+        rail.direction=-1;
+      }
+      sprite.setVelocityX(112*rail.direction);
+    }
+  }
   private addBridge(start: number,y: number,width: number) {
     const supports=this.track(this.add.graphics().setDepth(2));
     for (const [x,direction] of [[start+23,1],[start+width-9,-1]]) {
@@ -373,6 +442,7 @@ class Adventure extends Phaser.Scene {
       [0x272837,0x414050,0x626075,0x8a8599,0x57586f,0x908da9],
       [0x49302d,0x744d3c,0xa16a48,0xd59a65,0x8a573c,0xd49965],
       [0x35292d,0x56404a,0x76545a,0xae7c75,0x684b53,0xaa7971],
+      [0x272b39,0x414756,0x60656d,0x939287,0x7d6457,0xc39563],
     ];
     const [shadow,stone,mid,light,rim,edge]=palettes[this.index];
     const graphics=this.track(this.add.graphics().setDepth(depthOrder));
@@ -798,6 +868,7 @@ class Adventure extends Phaser.Scene {
       this.landingArt=[];
     }
     this.pieces.forEach(piece=>this.tickPiece(piece,seconds));
+    this.updateRails();
     const boss=this.pieces.find(piece=>piece.type==='boss');
     if (this.player.x>=map.exit-12 && this.player.y>215 && (!boss||!boss.sprite.active)) this.win();
   }

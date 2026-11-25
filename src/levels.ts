@@ -2,17 +2,22 @@ export type Surface = readonly [x: number, y: number, width: number];
 export type Kind = 'bridge' | 'bait' | 'spikes' | 'falling' | 'chase' | 'enemy' | 'hopper' | 'flyer' | 'coin' | 'fakeExit' | 'boss';
 type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number, warningMs?: number];
 
+type Platform = { x: number; y: number; travel: number; channel: string };
+type Switch = { x: number; y: number; channel: string; mounted: boolean };
+
 interface Level {
   tint: number;
   start: number;
   checkpoints: number[];
   exit: number;
   surfaces: Surface[];
+  platforms: Platform[];
+  switches: Switch[];
   objects: ObjectData[];
   lines: Array<readonly [number, string]>;
 }
 
-interface Property { name: string; value: string | number }
+interface Property { name: string; value: string | number | boolean }
 interface MapObject { type: string; x: number; y: number; width: number; properties?: Property[] }
 interface TiledMap { properties: Property[]; layers: Array<{name: string; objects: MapObject[]}> }
 
@@ -36,6 +41,12 @@ function readMap(source: string): Level {
     start: point('start'),
     checkpoints: objects.filter(item => item.type === 'checkpoint').map(item => item.x),
     exit: point('exit'),
+    platforms: objects.filter(item=>item.type==='platform').map(({x,y,properties})=>({
+      x,y,travel:Number(property(properties,'range')),channel:String(property(properties,'channel')),
+    })),
+    switches: objects.filter(item=>item.type==='switch').map(({x,y,properties})=>({
+      x,y,channel:String(property(properties,'channel')),mounted:property(properties,'mounted')===true,
+    })),
     surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
     objects: objects.filter(({type}) => kinds.has(type)).map(item => {
       const warningMs = property(item.properties, 'warningMs');
