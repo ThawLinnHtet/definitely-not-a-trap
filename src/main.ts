@@ -677,6 +677,10 @@ class Adventure extends Phaser.Scene {
     const last = this.index===levels.length-1;
     unlocked = Math.max(unlocked,Math.min(this.index+1,levels.length-1));
     saveProgress();
+    if (this.index===4 && !last) {
+      this.start(this.index+1,false);
+      return;
+    }
     sound(550,.24,880);
     showMenu(last?'Adventure Complete':`${levelLabel(this.index)} Clear`,`Coins ${this.collected.size}`,[
       {title:last?'Level Select':'Next Level',run:()=>last?this.select():this.start(this.index+1,false)},
@@ -784,7 +788,7 @@ class Adventure extends Phaser.Scene {
     if (type==='fakeExit' && piece.state===0 && Math.abs(distance)<39) {
       piece.state=1;
       sprite.setVisible(false);
-      this.say('Congratulations! Your prize is behind you. Kidding.');
+      this.say('That flag was bait. Meet the gatekeeper.');
       const boss = this.pieces.find(item=>item.type==='boss');
       if (boss) boss.sprite.setPosition(boss.x,boss.y-boss.sprite.height/2).setVisible(true);
       sound(310,.21,75);
