@@ -6,7 +6,7 @@
   "renderorder": "right-down",
   "tilewidth": 16,
   "tileheight": 16,
-  "width": 454,
+  "width": 469,
   "height": 30,
   "infinite": false,
   "nextlayerid": 4,
@@ -165,7 +165,7 @@
           "type": "",
           "x": 6520,
           "y": 333,
-          "width": 730,
+          "width": 595,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -178,6 +178,17 @@
           "y": 235,
           "width": 178,
           "height": 14,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 96,
+          "name": "",
+          "type": "",
+          "x": 7230,
+          "y": 333,
+          "width": 270,
+          "height": 36,
           "rotation": 0,
           "visible": true
         }
@@ -209,7 +220,7 @@
           "id": 16,
           "name": "",
           "type": "exit",
-          "x": 7185,
+          "x": 7420,
           "y": 0,
           "point": true,
           "width": 0,
@@ -1166,11 +1177,22 @@
           "id": 89,
           "name": "",
           "type": "coin",
-          "x": 7090,
-          "y": 296,
+          "x": 7155,
+          "y": 272,
           "point": true,
           "width": 0,
           "height": 0,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 97,
+          "name": "Shutter and pressure plate",
+          "type": "escapeGate",
+          "x": 6850,
+          "y": 333,
+          "width": 90,
+          "height": 6,
           "rotation": 0,
           "visible": true
         }
@@ -1280,25 +1302,6 @@
               "value": "One more crossing. Check which way the deck is headed."
             }
           ]
-        },
-        {
-          "id": 95,
-          "name": "",
-          "type": "caption",
-          "x": 6990,
-          "y": 0,
-          "point": true,
-          "width": 0,
-          "height": 0,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "text",
-              "type": "string",
-              "value": "A genuine exit. I can hardly believe it either."
-            }
-          ]
         }
       ],
       "type": "objectgroup",
@@ -1310,5 +1313,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 96
+  "nextobjectid": 98
 }

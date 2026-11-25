@@ -15,6 +15,8 @@ const SPIKE_TRIGGER_RANGE = 125;
 const BAIT_WARNING_MS = 120;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
+const GATE_DROP_MS = 360;
+const GATE_SPEED = 286;
 function levelLabel(index: number) {
   return `Level ${index + 1}`;
 }
@@ -103,6 +105,7 @@ class Adventure extends Phaser.Scene {
   private onTitle = true;
   private started = false;
   private finishOpen = false;
+  private escapeGate?: { x: number; startedAt?: number };
   private lastGround = -1000;
   private jumpPressed = -1000;
   private stride = 0;
@@ -252,6 +255,7 @@ class Adventure extends Phaser.Scene {
     this.lines.clear();
     this.dead = false;
     this.finishOpen = false;
+    this.escapeGate = map.escapeGate && { x: map.escapeGate.x };
     this.lastGround = -1000;
     this.jumpPressed = -1000;
     this.stride = 0;
@@ -314,6 +318,7 @@ class Adventure extends Phaser.Scene {
     });
     this.exitFlag=this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
     this.exitFlag.setVisible(!map.objects.some(([type])=>type==='boss'));
+    this.updateEscapeGate(0);
     if (index===0) {
       this.landingArt.push(...this.pieces.filter(piece=>piece.x>594 && piece.x<W && piece.type!=='bridge')
         .map(piece=>piece.sprite));
@@ -696,6 +701,38 @@ class Adventure extends Phaser.Scene {
     this.draw.fillStyle(0xde6f43,.68).fillRect(x-21,y,42,3);
     this.draw.fillStyle(0xffd28e,.9).fillRect(x-3,y-11,6,8);
   }
+  private updateEscapeGate(seconds: number) {
+    const marker=levels[this.index].escapeGate;
+    const gate=this.escapeGate;
+    if (!marker || !gate) return;
+    const body=this.player.body as Phaser.Physics.Arcade.Body;
+
+    if (gate.startedAt===undefined && body.center.x>=marker.triggerX && body.bottom>=marker.y-4) {
+      gate.startedAt=this.clock;
+      this.say('The shutter is coming. Run and jump!');
+      sound(210,.34,72);
+    }
+
+    const drop=gate.startedAt===undefined ? 0 : Math.min(1,(this.clock-gate.startedAt)/GATE_DROP_MS);
+    if (drop===1) gate.x+=GATE_SPEED*seconds;
+
+    const x=Math.round(gate.x);
+    const teethY=marker.y-115+Math.round(drop*115);
+    const top=marker.y-154;
+    const plate=gate.startedAt===undefined ? 0xf2be61 : 0xef6551;
+    this.draw.fillStyle(0x362522).fillRect(marker.triggerX-14,marker.y-4,28,4);
+    this.draw.fillStyle(plate).fillRect(marker.triggerX-11,marker.y-5,22,3);
+    this.draw.fillStyle(0x34251f).fillRect(x-16,top-8,32,12);
+    for (let bar=x-12;bar<=x+12;bar+=8) {
+      this.draw.fillStyle(0x9a5b3e).fillRect(bar-2,top,5,teethY-top-6);
+      this.draw.fillStyle(0xffc278).fillRect(bar-1,top,1,teethY-top-6);
+      this.draw.fillStyle(0xb9794c).fillTriangle(bar-3,teethY-7,bar+3,teethY-7,bar,teethY);
+    }
+    this.draw.fillStyle(0x6a4232).fillRect(x-15,teethY-17,30,7);
+    this.draw.fillStyle(plate).fillRect(x-3,teethY-15,6,3);
+
+    if (drop===1 && body.left<=gate.x+15) this.die(gate.x);
+  }
   private tickPiece(piece: Piece, seconds: number) {
     const {type,sprite,x,y,range} = piece;
     const distance = this.player.x-x;
@@ -873,6 +910,8 @@ class Adventure extends Phaser.Scene {
     }
     this.pieces.forEach(piece=>this.tickPiece(piece,seconds));
     this.updateRails();
+    this.updateEscapeGate(seconds);
+    if (this.dead) return;
     const boss=this.pieces.find(piece=>piece.type==='boss');
     if (this.player.x>=map.exit-12 && this.player.y>215 && (!boss||!boss.sprite.active)) this.win();
   }

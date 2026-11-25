@@ -10,6 +10,7 @@ interface Level {
   start: number;
   checkpoints: number[];
   exit: number;
+  escapeGate?: { x: number; y: number; triggerX: number };
   surfaces: Surface[];
   platforms: Platform[];
   switches: Switch[];
@@ -31,6 +32,7 @@ function readMap(source: string): Level {
   const map: TiledMap = JSON.parse(source);
   const layer = (name: string) => map.layers.find(item => item.name === name)?.objects ?? [];
   const objects = layer('Objects');
+  const gate = objects.find(item => item.type === 'escapeGate');
   const point = (type: string) => {
     const marker = objects.find(item => item.type === type);
     if (!marker) throw new Error(`Level needs a ${type} object`);
@@ -41,6 +43,7 @@ function readMap(source: string): Level {
     start: point('start'),
     checkpoints: objects.filter(item => item.type === 'checkpoint').map(item => item.x),
     exit: point('exit'),
+    escapeGate: gate && { x: gate.x, y: gate.y, triggerX: gate.x+gate.width },
     platforms: objects.filter(item=>item.type==='platform').map(({x,y,properties})=>({
       x,y,travel:Number(property(properties,'range')),channel:String(property(properties,'channel')),
     })),
