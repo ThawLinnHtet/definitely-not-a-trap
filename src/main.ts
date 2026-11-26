@@ -313,8 +313,9 @@ class Adventure extends Phaser.Scene {
       this.pressureSwitches.push({sprite,rail,offset:mounted?x-rail.left:null,y,pressed:false});
     }
     map.objects.forEach(([type,x,y,range,warningMs],i) => {
-      if (type==='bridge' && range) this.addBridge(x,y,range);
-      else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i,warningMs);
+      if (type==='bridge' || type==='coinBridge') {
+        if (range) this.addBridge(x,y,range,type==='coinBridge');
+      } else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i,warningMs);
     });
     this.exitFlag=this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
     this.exitFlag.setVisible(!map.objects.some(([type])=>type==='boss'));
@@ -428,7 +429,7 @@ class Adventure extends Phaser.Scene {
       sprite.setVelocityX(112*rail.direction);
     }
   }
-  private addBridge(start: number,y: number,width: number) {
+  private addBridge(start: number,y: number,width: number,coinTriggered: boolean) {
     const supports=this.track(this.add.graphics().setDepth(2));
     for (const [x,direction] of [[start+23,1],[start+width-9,-1]]) {
       supports.fillStyle(0x4a2a24).fillRect(x-8,y+1,16,125);
@@ -438,7 +439,30 @@ class Adventure extends Phaser.Scene {
       supports.fillStyle(0x553526).fillRect(x-11,y-7,22,6);
       supports.fillStyle(0xc19458).fillRect(x-10,y-3,20,3).fillRect(x-10,y+35,20,4);
     }
-    for (let x=start;x<start+width;x+=49) this.spawn('bridge',x+24,y);
+    const planks: Piece[] = [];
+    for (let x=start;x<start+width;x+=49) {
+      const plank=this.spawn('bridge',x+24,y);
+      planks.push(plank);
+      this.colliders.push(this.physics.add.collider(this.player,plank.sprite,()=>{
+        if (!coinTriggered && plank.state===0) {
+          plank.state=1;
+          plank.timer=this.clock+590;
+          sound(112,.09,80);
+        }
+      },()=>plank.state<2));
+    }
+    if (!coinTriggered) return;
+    const coin=this.track(this.physics.add.staticImage(start+width-150,y-27,'coin')).setDepth(4);
+    this.colliders.push(this.physics.add.overlap(this.player,coin,()=>{
+      if (this.dead) return;
+      coin.disableBody(true,true);
+      this.coinSpark.emitParticleAt(coin.x,coin.y,7);
+      for (const plank of planks) {
+        plank.state=1;
+        plank.timer=this.clock;
+      }
+      sound(165,.18,75);
+    }));
   }
   private paintTerrain(x: number,y: number,w: number,depthOrder=1) {
     const palettes = [
@@ -476,7 +500,7 @@ class Adventure extends Phaser.Scene {
       graphics.fillStyle(light,.72).fillRect(x+offset-2,y+2,3,2);
     }
   }
-  private spawn(type: Kind,x: number,y: number,range=0,id=-1,warningMs=SPIKE_WARNING_MS) {
+  private spawn(type: Exclude<Kind,'coinBridge'>,x: number,y: number,range=0,id=-1,warningMs=SPIKE_WARNING_MS) {
     const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : type==='spikes' ? 'spike' : type==='fakeExit' ? 'exit' : type;
     const sprite = this.track(this.physics.add.image(x,y,texture)).setDepth(4);
     const body = sprite.body as Phaser.Physics.Arcade.Body;
@@ -487,16 +511,13 @@ class Adventure extends Phaser.Scene {
     if (type==='bridge') {
       sprite.setY(y+sprite.height/2).setDepth(3);
       body.updateFromGameObject();
-      this.colliders.push(this.physics.add.collider(this.player,sprite,()=>{
-        if (piece.state===0) { piece.state=1; piece.timer=this.clock+590; sound(112,.09,80); }
-      },()=>piece.state<2));
-      return;
+      return piece;
     }
     if (type==='spikes') sprite.setY(y-12).setVisible(false);
     else if (type==='falling' || type==='chase' || type==='boss') sprite.setVisible(false);
     else if (type!=='coin' && type!=='bait' && type!=='flyer') sprite.setY(y-sprite.height/2);
     body.updateFromGameObject();
-    if (type==='fakeExit') return;
+    if (type==='fakeExit') return piece;
     this.colliders.push(this.physics.add.overlap(this.player,sprite,()=>{
       if (this.dead) return;
       if (type==='spikes') {
@@ -557,6 +578,7 @@ class Adventure extends Phaser.Scene {
         }
       } else this.die(sprite.x);
     }));
+    return piece;
   }
   private syncCoinCount() {
     coins.hidden=this.collected.size===0;

@@ -424,7 +424,7 @@
         {
           "id": 35,
           "name": "",
-          "type": "bridge",
+          "type": "coinBridge",
           "x": 146,
           "y": 306,
           "point": true,
