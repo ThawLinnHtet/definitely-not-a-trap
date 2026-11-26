@@ -28,6 +28,3 @@ button{background:#593b28;border:2px solid #ae845a;color:inherit;font:inherit;fo
 button:hover,button:focus-visible{background:#795638;outline:2px solid #fff0ca;outline-offset:-4px}
 button:disabled{opacity:.48;cursor:default}
 :focus-visible{outline:2px solid #fff0ca}
-
-.race-share{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
-.race-invite{flex:1 1 13rem;min-width:0;padding:.4rem;background:#211711;color:inherit;border:1px solid #ae845a;font:inherit}
