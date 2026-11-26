@@ -99,6 +99,7 @@ function closeMenu() {
 class Adventure extends Phaser.Scene {
   private index = 0;
   private checkpoint?: number;
+  private gatekeeperDefeated = false;
   private lives = STARTING_LIVES;
   private collected = new Set<number>();
   private paused = true;
@@ -314,12 +315,13 @@ class Adventure extends Phaser.Scene {
       this.pressureSwitches.push({sprite,rail,offset:mounted?x-rail.left:null,y,pressed:false});
     }
     map.objects.forEach(([type,x,y,range,warningMs],i) => {
+      if (this.gatekeeperDefeated && (type==='boss' || type==='fakeExit')) return;
       if (type==='bridge' || type==='coinBridge') {
         if (range) this.addBridge(x,y,range,type==='coinBridge');
       } else if (type!=='coin' || !this.collected.has(i)) this.spawn(type,x,y,range,i,warningMs);
     });
     this.exitFlag=this.track(this.add.image(map.exit,this.groundAt(map.exit),'exit').setOrigin(.5,1).setDepth(4));
-    this.exitFlag.setVisible(!map.objects.some(([type])=>type==='boss'));
+    this.exitFlag.setVisible(this.gatekeeperDefeated || !map.objects.some(([type])=>type==='boss'));
     this.updateEscapeGate(0);
     if (index===0) {
       this.landingArt.push(...this.pieces.filter(piece=>piece.x>594 && piece.x<W && piece.type!=='bridge')
@@ -570,6 +572,7 @@ class Adventure extends Phaser.Scene {
         if (type!=='boss' || ++piece.state>=GATEKEEPER_STOMPS) {
           sprite.disableBody(true,true);
           if (type==='boss') {
+            this.gatekeeperDefeated=true;
             this.exitFlag.setVisible(true);
             this.say('Gatekeeper defeated. The real exit is ahead.');
           }
@@ -655,6 +658,7 @@ class Adventure extends Phaser.Scene {
     this.onTitle = false;
     this.started = true;
     this.checkpoint = undefined;
+    this.gatekeeperDefeated = false;
     if (freshRun) this.lives=STARTING_LIVES;
     this.collected.clear();
     this.paused = false;
@@ -731,7 +735,7 @@ class Adventure extends Phaser.Scene {
     if (!marker || !gate) return;
     const body=this.player.body as Phaser.Physics.Arcade.Body;
 
-    if (gate.startedAt===undefined && body.center.x>=marker.triggerX && body.bottom>=marker.y-4) {
+    if (gate.startedAt===undefined && body.center.x>=marker.triggerX) {
       gate.startedAt=this.clock;
       this.say('The shutter is coming. Run and jump!');
       sound(210,.34,72);
