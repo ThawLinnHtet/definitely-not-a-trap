@@ -684,7 +684,7 @@ class Adventure extends Phaser.Scene {
     this.physics.pause();
     showMenu('Paused', `Coins ${this.collected.size} · P to resume`,[
       {title:'Resume',run:()=>this.resumeGame()},
-      {title:'Restart Level',run:()=>this.start(this.index,false)},
+      {title:'Restart Level',run:()=>this.start(this.index)},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.pauseGame(); }},
       {title:'Main Menu',run:()=>{ this.started=false; this.title(); }},
     ]);
