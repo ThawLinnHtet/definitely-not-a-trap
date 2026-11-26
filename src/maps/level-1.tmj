@@ -386,18 +386,6 @@
           "visible": true
         },
         {
-          "id": 32,
-          "name": "",
-          "type": "checkpoint",
-          "x": 5495,
-          "y": 0,
-          "point": true,
-          "width": 0,
-          "height": 0,
-          "rotation": 0,
-          "visible": true
-        },
-        {
           "id": 33,
           "name": "",
           "type": "checkpoint",
