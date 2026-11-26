@@ -6,7 +6,7 @@
   "renderorder": "right-down",
   "tilewidth": 16,
   "tileheight": 16,
-  "width": 469,
+  "width": 480,
   "height": 30,
   "infinite": false,
   "nextlayerid": 4,
@@ -187,7 +187,18 @@
           "type": "",
           "x": 7230,
           "y": 333,
-          "width": 270,
+          "width": 125,
+          "height": 36,
+          "rotation": 0,
+          "visible": true
+        },
+        {
+          "id": 98,
+          "name": "",
+          "type": "",
+          "x": 7445,
+          "y": 333,
+          "width": 225,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -220,7 +231,7 @@
           "id": 16,
           "name": "",
           "type": "exit",
-          "x": 7420,
+          "x": 7590,
           "y": 0,
           "point": true,
           "width": 0,
@@ -1183,6 +1194,18 @@
           "height": 6,
           "rotation": 0,
           "visible": true
+        },
+        {
+          "id": 99,
+          "name": "",
+          "type": "coin",
+          "x": 7397,
+          "y": 269,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
         }
       ],
       "type": "objectgroup",
@@ -1301,5 +1324,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 98
+  "nextobjectid": 100
 }

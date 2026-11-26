@@ -446,7 +446,7 @@
         {
           "id": 37,
           "name": "",
-          "type": "bridge",
+          "type": "coinBridge",
           "x": 3918,
           "y": 337,
           "point": true,
@@ -1498,7 +1498,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "You know the bridge. What about the coins?"
+              "value": "You dodged the coins. Surely the bridge is different."
             }
           ]
         },

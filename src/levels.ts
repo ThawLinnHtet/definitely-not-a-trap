@@ -1,5 +1,5 @@
 export type Surface = readonly [x: number, y: number, width: number];
-export type Kind = 'bridge' | 'coinBridge' | 'bait' | 'spikes' | 'falling' | 'chase' | 'enemy' | 'hopper' | 'flyer' | 'coin' | 'fakeExit' | 'boss';
+export type Kind = 'bridge' | 'coinBridge' | 'bait' | 'spikes' | 'jumpSpikes' | 'falling' | 'chase' | 'enemy' | 'hopper' | 'flyer' | 'coin' | 'fakeExit' | 'boss';
 type ObjectData = readonly [kind: Kind, x: number, y: number, range?: number, warningMs?: number];
 
 type Platform = { x: number; y: number; travel: number; channel: string };
@@ -26,7 +26,7 @@ const files = import.meta.glob<string>('./maps/*.tmj', { query: '?raw', eager: t
 const property = (properties: Property[] | undefined, name: string) =>
   properties?.find(item => item.name === name)?.value;
 
-const kinds = new Set<string>(['bridge','coinBridge','bait','spikes','falling','chase','enemy','hopper','flyer','coin','fakeExit','boss']);
+const kinds = new Set<string>(['bridge','coinBridge','bait','spikes','jumpSpikes','falling','chase','enemy','hopper','flyer','coin','fakeExit','boss']);
 
 function readMap(source: string): Level {
   const map: TiledMap = JSON.parse(source);

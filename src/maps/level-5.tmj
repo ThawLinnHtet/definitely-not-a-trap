@@ -1460,6 +1460,25 @@
           "height": 0,
           "rotation": 0,
           "visible": true
+        },
+        {
+          "id": 126,
+          "name": "",
+          "type": "spikes",
+          "x": 8450,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "warningMs",
+              "type": "int",
+              "value": 160
+            }
+          ]
         }
       ],
       "type": "objectgroup",
@@ -1616,5 +1635,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 126
+  "nextobjectid": 127
 }

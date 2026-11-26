@@ -17,7 +17,7 @@ const GATEKEEPER_STOMPS = 3;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
 const GATE_DROP_MS = 360;
-const GATE_SPEED = 286;
+const GATE_SPEED = 300;
 function levelLabel(index: number) {
   return `Level ${index + 1}`;
 }
@@ -502,7 +502,7 @@ class Adventure extends Phaser.Scene {
     }
   }
   private spawn(type: Exclude<Kind,'coinBridge'>,x: number,y: number,range=0,id=-1,warningMs=SPIKE_WARNING_MS) {
-    const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : type==='spikes' ? 'spike' : type==='fakeExit' ? 'exit' : type;
+    const texture = type==='bridge' ? 'plank' : type==='bait' ? 'coin' : type==='falling' ? 'rock' : (type==='spikes' || type==='jumpSpikes') ? 'spike' : type==='fakeExit' ? 'exit' : type;
     const sprite = this.track(this.physics.add.image(x,y,texture)).setDepth(4);
     const body = sprite.body as Phaser.Physics.Arcade.Body;
     body.setAllowGravity(false);
@@ -514,14 +514,15 @@ class Adventure extends Phaser.Scene {
       body.updateFromGameObject();
       return piece;
     }
-    if (type==='spikes') sprite.setY(y-12).setVisible(false);
+    if (type==='spikes' || type==='jumpSpikes') sprite.setY(y-12).setVisible(false);
     else if (type==='falling' || type==='chase' || type==='boss') sprite.setVisible(false);
     else if (type!=='coin' && type!=='bait' && type!=='flyer') sprite.setY(y-sprite.height/2);
     body.updateFromGameObject();
     if (type==='fakeExit') return piece;
     this.colliders.push(this.physics.add.overlap(this.player,sprite,()=>{
       if (this.dead) return;
-      if (type==='spikes') {
+      if (type==='spikes' || type==='jumpSpikes') {
+        if (type==='jumpSpikes' && piece.state<2) return;
         this.raiseSpikes(piece);
         this.die(sprite.x);
         return;
@@ -775,10 +776,11 @@ class Adventure extends Phaser.Scene {
       piece.state=2;
       sprite.clearTint();
     }
-    if (type==='spikes') {
+    if (type==='spikes' || type==='jumpSpikes') {
       const body=this.player.body as Phaser.Physics.Arcade.Body;
       const inLane=body.bottom>=y-sprite.height && body.top<y;
-      if (piece.state===0 && inLane && Math.abs(distance)<=SPIKE_TRIGGER_RANGE) {
+      const activates=type==='jumpSpikes' ? body.velocity.y < -10 : inLane;
+      if (piece.state===0 && activates && Math.abs(distance)<=SPIKE_TRIGGER_RANGE) {
         piece.state=1;
         piece.timer=this.clock+piece.warningMs;
         sound(120,.13,78);

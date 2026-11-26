@@ -1323,6 +1323,18 @@
           "height": 0,
           "rotation": 0,
           "visible": true
+        },
+        {
+          "id": 116,
+          "name": "",
+          "type": "falling",
+          "x": 7005,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
         }
       ],
       "type": "objectgroup",
@@ -1427,7 +1439,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "Did you think that was the last chase?"
+              "value": "Run. And if you see a warning on the ground, brake."
             }
           ]
         },
@@ -1460,5 +1472,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 116
+  "nextobjectid": 117
 }

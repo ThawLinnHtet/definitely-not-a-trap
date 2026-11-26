@@ -1296,6 +1296,37 @@
           "height": 0,
           "rotation": 0,
           "visible": true
+        },
+        {
+          "id": 108,
+          "name": "",
+          "type": "jumpSpikes",
+          "x": 3755,
+          "y": 333,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "warningMs",
+              "type": "int",
+              "value": 90
+            }
+          ]
+        },
+        {
+          "id": 109,
+          "name": "",
+          "type": "coin",
+          "x": 3650,
+          "y": 230,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
         }
       ],
       "type": "objectgroup",
@@ -1422,6 +1453,25 @@
               "value": "Last timing test. Watch the gap after it."
             }
           ]
+        },
+        {
+          "id": 110,
+          "name": "",
+          "type": "caption",
+          "x": 3555,
+          "y": 0,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "text",
+              "type": "string",
+              "value": "After all those spikes, better jump here too. Probably."
+            }
+          ]
         }
       ],
       "type": "objectgroup",
@@ -1433,5 +1483,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 108
+  "nextobjectid": 111
 }
