@@ -13,6 +13,7 @@ const ROCK_TRIGGER_RANGE = 76;
 const SPIKE_WARNING_MS = 250;
 const SPIKE_TRIGGER_RANGE = 125;
 const BAIT_WARNING_MS = 120;
+const GATEKEEPER_STOMPS = 3;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
 const GATE_DROP_MS = 360;
@@ -565,11 +566,11 @@ class Adventure extends Phaser.Scene {
       if (canStomp && playerBody.velocity.y>110 && playerBody.bottom < body.center.y+10) {
         this.player.setVelocityY(-385);
         sound(220,.15,110);
-        if (type!=='boss' || ++piece.state>=3) {
+        if (type!=='boss' || ++piece.state>=GATEKEEPER_STOMPS) {
           sprite.disableBody(true,true);
           if (type==='boss') {
             this.exitFlag.setVisible(true);
-            this.say('Fine. That one is the real exit.');
+            this.say('Gatekeeper defeated. The real exit is ahead.');
           }
         } else {
           piece.direction = this.player.x<sprite.x ? 1 : -1;
@@ -847,7 +848,7 @@ class Adventure extends Phaser.Scene {
     if (type==='fakeExit' && piece.state===0 && Math.abs(distance)<39) {
       piece.state=1;
       sprite.setVisible(false);
-      this.say('That flag was bait. Meet the gatekeeper.');
+      this.say('That flag was bait! Jump on the gatekeeper three times to open the real exit.');
       const boss = this.pieces.find(item=>item.type==='boss');
       if (boss) boss.sprite.setPosition(boss.x,boss.y-boss.sprite.height/2).setVisible(true);
       sound(310,.21,75);
@@ -935,6 +936,14 @@ class Adventure extends Phaser.Scene {
     this.updateEscapeGate(seconds);
     if (this.dead) return;
     const boss=this.pieces.find(piece=>piece.type==='boss');
+    if (boss?.sprite.active && boss.sprite.visible) {
+      const x=Math.round(boss.sprite.x)-15;
+      const y=Math.round(boss.sprite.y-boss.sprite.height/2)-13;
+      this.draw.fillStyle(0x39262f).fillRect(x-2,y-2,34,10);
+      for (let i=0;i<GATEKEEPER_STOMPS;i++) {
+        this.draw.fillStyle(i<GATEKEEPER_STOMPS-boss.state?0xffce7a:0x73525b).fillRect(x+i*11,y,8,6);
+      }
+    }
     if (this.player.x>=map.exit-12 && this.player.y>215 && (!boss||!boss.sprite.active)) this.win();
   }
 }
