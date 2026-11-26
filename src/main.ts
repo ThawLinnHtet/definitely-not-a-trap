@@ -3,6 +3,7 @@ import '@fontsource/pixelify-sans/latin-400.css';
 import '@fontsource/pixelify-sans/latin-700.css';
 import './style.css';
 import { levels, type Kind } from './levels';
+import { RaceRoom } from './race-room';
 import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
@@ -105,6 +106,7 @@ class Adventure extends Phaser.Scene {
   private dead = false;
   private onTitle = true;
   private started = false;
+  private race?: RaceRoom;
   private finishOpen = false;
   private escapeGate?: { x: number; startedAt?: number };
   private lastGround = -1000;
@@ -171,6 +173,7 @@ class Adventure extends Phaser.Scene {
     this.loadLevel(0);
     this.scale.on(Phaser.Scale.Events.RESIZE,this.positionCamera,this);
     this.title();
+    if (RaceRoom.hasInvite()) this.openRace();
   }
   private makeTextures() {
     const g = this.make.graphics({x:0,y:0}, false);
@@ -671,6 +674,7 @@ class Adventure extends Phaser.Scene {
     showMenu('Definitely Not a Trap!', 'The easiest game you’ll never finish.', [
       {title:this.started?'Continue':unlocked>0?'Continue Adventure':'Start Adventure',run:()=>this.started ? this.resumeGame() : this.start(unlocked)},
       {title:'Level Select',run:()=>this.select()},
+      {title:'Private Race',run:()=>this.chooseRaceLevel()},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.title(); }},
     ]);
   }
@@ -680,6 +684,71 @@ class Adventure extends Phaser.Scene {
       {title:'Back',run:()=>this.title()},
     ]);
   }
+  private chooseRaceLevel() {
+    showMenu('Choose a Race Level','Invite up to seven friends. First to the finish wins.',[
+      ...levels.map((_,index)=>({title:levelLabel(index),run:()=>this.openRace(index)})),
+      {title:'Back',run:()=>this.title()},
+    ]);
+  }
+  private openRace(level?: number) {
+    this.race = new RaceRoom(level,levels.length,()=>this.updateRaceMenu());
+    this.updateRaceMenu();
+  }
+  private leaveRace() {
+    this.race?.close();
+    this.race=undefined;
+    if (RaceRoom.hasInvite()) {
+      const url=new URL(location.href);
+      url.hash='';
+      history.replaceState(history.state,'',url);
+    }
+    this.started=false;
+    this.title();
+  }
+  private updateRaceMenu() {
+    const race=this.race;
+    if (!race) return;
+    const leave={title:'Leave Race',run:()=>this.leaveRace()};
+    if (race.phase==='racing' && !race.submitted) {
+      this.start(race.level);
+      return;
+    }
+    this.paused=true;
+    this.physics.pause();
+    if (race.phase==='connecting') showMenu('Private Race','Connecting to the room…',[leave]);
+    if (race.phase==='error') showMenu('Private Race',race.error,[leave]);
+    if (race.phase==='lobby') {
+      const start={title:'Start Race',run:()=>race.start(),disabled:race.players<2};
+      showMenu('Private Race',levelLabel(race.level)+' · '+race.players+'/8 players',race.isHost?[start,leave]:[leave]);
+      if (race.link) {
+        const invite=document.createElement('input');
+        invite.className='race-invite';
+        invite.readOnly=true;
+        invite.setAttribute('aria-label','Race invite link');
+        invite.value=race.link;
+        const copy=document.createElement('button');
+        copy.textContent='Copy Invite';
+        copy.addEventListener('click',async()=>{
+          try {
+            await navigator.clipboard.writeText(invite.value);
+            copy.textContent='Invite Copied';
+          } catch {
+            invite.focus();
+            invite.select();
+          }
+        });
+        const row=document.createElement('div');
+        row.className='race-share';
+        row.append(invite,copy);
+        menu.querySelector('.actions')?.before(row);
+      }
+    }
+    if (race.phase==='countdown') showMenu('Get Ready',levelLabel(race.level),[leave]);
+    if (race.phase==='racing') showMenu('Finished','Sending your finish to the host…',[leave]);
+    if (race.phase==='finished') {
+      showMenu(race.winner===race.player?'You Win!':'Player '+race.winner+' Wins!',levelLabel(race.level),[leave]);
+    }
+  }
   private pauseGame() {
     this.paused=true;
     this.physics.pause();
@@ -687,7 +756,8 @@ class Adventure extends Phaser.Scene {
       {title:'Resume',run:()=>this.resumeGame()},
       {title:'Restart Level',run:()=>this.start(this.index)},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.pauseGame(); }},
-      {title:'Main Menu',run:()=>{ this.started=false; this.title(); }},
+      this.race ? {title:'Leave Race',run:()=>this.leaveRace()} :
+        {title:'Main Menu',run:()=>{ this.started=false; this.title(); }},
     ]);
   }
   private resumeGame() {
@@ -702,6 +772,10 @@ class Adventure extends Phaser.Scene {
     this.paused=true;
     this.started=false;
     this.physics.pause();
+    if (this.race) {
+      this.race.finish();
+      return;
+    }
     const last = this.index===levels.length-1;
     unlocked = Math.max(unlocked,Math.min(this.index+1,levels.length-1));
     saveProgress();
