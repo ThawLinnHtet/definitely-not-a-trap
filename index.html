@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Definitely Not a Trap! A six-level pixel-art platformer.">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
@@ -10,5 +10,18 @@
 <div id="overlay" hidden><section class="panel" id="menu" aria-label="Game menu"></section></div>
 <div id="lives-screen" hidden>
   <div class="lives-summary" role="status" aria-atomic="true"><span class="lives-hero" aria-hidden="true"></span><span id="lives-count" aria-hidden="true"></span><span id="lives-announcement" class="lives-announcement"></span></div>
+</div>
+<div id="touch-controls" role="group" aria-label="Touch controls" hidden>
+  <div class="touch-movement">
+    <button type="button" data-hold="left" aria-label="Move left"></button>
+    <button type="button" data-hold="right" aria-label="Move right"></button>
+  </div>
+  <button type="button" data-hold="jump">Jump</button>
+  <button type="button" data-pause aria-label="Pause game"></button>
+</div>
+<div id="orientation-prompt" hidden>
+  <section class="panel" role="status">
+    <h2>Rotate your phone to play</h2>
+  </section>
 </div>
 </main></div><script type="module" src="/src/main.ts"></script></body></html>

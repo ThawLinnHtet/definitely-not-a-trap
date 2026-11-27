@@ -28,3 +28,83 @@ button{background:#593b28;border:2px solid #ae845a;color:inherit;font:inherit;fo
 button:hover,button:focus-visible{background:#795638;outline:2px solid #fff0ca;outline-offset:-4px}
 button:disabled{opacity:.48;cursor:default}
 :focus-visible{outline:2px solid #fff0ca}
+
+#orientation-prompt{
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  background:#1b1722d9;
+  padding:24px;
+  text-align:center;
+}
+#orientation-prompt[hidden],#touch-controls[hidden],
+#hud[hidden] ~ #touch-controls,#overlay:not([hidden]) ~ #touch-controls,
+#lives-screen:not([hidden]) ~ #touch-controls{display:none}
+#orientation-prompt .panel{padding:20px 24px}
+#orientation-prompt h2{margin:0;font-size:clamp(22px,6cqw,32px)}
+#touch-controls{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  --control-size:clamp(48px,15dvh,65px);
+}
+#touch-controls button{
+  pointer-events:auto;
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  display:grid;
+  place-items:center;
+  min-width:var(--control-size);
+  min-height:var(--control-size);
+  padding:0 12px;
+  font-size:18px;
+  background:#39251ded;
+  box-shadow:0 2px 5px #20150f75;
+}
+#touch-controls button:active,#touch-controls button.held{background:#8a5837}
+.touch-movement{position:absolute;left:var(--screen-left);bottom:var(--screen-bottom);display:flex;gap:8px}
+#touch-controls [data-hold="left"]::before,#touch-controls [data-hold="right"]::before{
+  content:"";
+  width:10px;
+  height:10px;
+  border-top:3px solid currentColor;
+  border-right:3px solid currentColor;
+  transform:rotate(45deg);
+}
+#touch-controls [data-hold="left"]::before{transform:rotate(-135deg)}
+#touch-controls [data-hold="jump"]{position:absolute;right:var(--screen-right);bottom:var(--screen-bottom)}
+#touch-controls [data-pause]{
+  position:absolute;
+  right:var(--screen-right);
+  top:var(--screen-top);
+  min-width:44px;
+  min-height:44px;
+}
+#touch-controls [data-pause]::before{
+  content:"";
+  width:6px;
+  height:14px;
+  box-sizing:content-box;
+  border-inline:3px solid currentColor;
+}
+@media (pointer:coarse) {
+  #game{
+    --screen-top:max(8px,env(safe-area-inset-top));
+    --screen-right:max(10px,env(safe-area-inset-right));
+    --screen-bottom:max(10px,env(safe-area-inset-bottom));
+    --screen-left:max(10px,env(safe-area-inset-left));
+  }
+  #overlay{padding:var(--screen-top) var(--screen-right) var(--screen-bottom) var(--screen-left)}
+  #menu{width:min(340px,100%);padding:12px 16px}
+  #menu p{font-size:15px}
+  #menu .actions{gap:5px}
+  #menu button{min-height:44px;font-size:16px}
+  #level{left:var(--screen-left);top:var(--screen-top)}
+  #coins{right:calc(var(--screen-right) + 52px);top:var(--screen-top)}
+  #caption{top:calc(var(--screen-top) + 28px);max-width:64%;font-size:clamp(13px,2.05cqw,22px)}
+}
+
+#overlay[inert]{visibility:hidden}

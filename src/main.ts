@@ -3,6 +3,7 @@ import '@fontsource/pixelify-sans/latin-400.css';
 import '@fontsource/pixelify-sans/latin-700.css';
 import './style.css';
 import { levels, type Kind } from './levels';
+import { TouchControls } from './touch-controls';
 import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
@@ -99,6 +100,7 @@ function closeMenu() {
 class Adventure extends Phaser.Scene {
   private index = 0;
   private checkpoint?: number;
+  private touch!: TouchControls;
   private gatekeeperDefeated = false;
   private lives = STARTING_LIVES;
   private collected = new Set<number>();
@@ -155,8 +157,9 @@ class Adventure extends Phaser.Scene {
     }
     this.draw = this.add.graphics().setDepth(6);
     this.keys = this.input.keyboard!.addKeys('LEFT,RIGHT,UP,A,D,W,SPACE,ESC,R') as typeof this.keys;
+    this.touch=new TouchControls(()=>this.canPlay(),()=>this.pauseGame());
     const togglePause = (event: KeyboardEvent) => {
-      if (event.repeat || this.onTitle || this.dead || this.finishOpen || !livesScreen.hidden) return;
+      if (this.touch.portrait || event.repeat || this.onTitle || this.dead || this.finishOpen || !livesScreen.hidden) return;
       if (event.code === 'Escape' && document.fullscreenElement) return;
       event.preventDefault();
       if (this.paused) this.resumeGame(); else this.pauseGame();
@@ -164,13 +167,22 @@ class Adventure extends Phaser.Scene {
     this.input.keyboard!.on('keydown-ESC', togglePause);
     this.input.keyboard!.on('keydown-P', togglePause);
     this.input.keyboard!.on('keydown-R', () => {
-      if (!this.paused && !this.dead && !this.finishOpen && livesScreen.hidden) this.die();
+      if (!this.touch.portrait && this.canPlay()) this.die();
     });
     this.game.events.on(Phaser.Core.Events.BLUR, () => {
-      if (!this.paused && !this.dead && !this.finishOpen && livesScreen.hidden) this.pauseGame();
+      if (this.canPlay()) this.pauseGame();
     });
     this.loadLevel(0);
     this.scale.on(Phaser.Scale.Events.RESIZE,this.positionCamera,this);
+    const stage=document.querySelector<HTMLElement>('#stage')!;
+    const resize=new ResizeObserver(([entry])=>{
+      const {width,height}=entry.contentRect;
+      if (width>0 && height>0 && (width!==this.scale.width || height!==this.scale.height)) {
+        this.scale.setParentSize(width,height);
+      }
+    });
+    resize.observe(stage);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN,()=>resize.disconnect());
     this.title();
   }
   private makeTextures() {
@@ -243,6 +255,7 @@ class Adventure extends Phaser.Scene {
     return object;
   }
   private loadLevel(index: number) {
+    this.touch.clear();
     this.index = index;
     const map = levels[index];
     for (const collider of this.colliders) collider.destroy();
@@ -618,6 +631,7 @@ class Adventure extends Phaser.Scene {
   private die(sourceX?: number) {
     if (this.dead || this.paused) return;
     this.dead=true;
+    this.touch.clear();
     this.lives--;
     this.physics.pause();
 
@@ -652,6 +666,7 @@ class Adventure extends Phaser.Scene {
     this.time.delayedCall(LIVES_SCREEN_MS,()=>{
       livesScreen.hidden=true;
       resume();
+      if (this.touch.portrait && this.canPlay()) this.pauseGame();
     });
   }
   private start(index: number, freshRun = true) {
@@ -680,15 +695,20 @@ class Adventure extends Phaser.Scene {
     ]);
   }
   private select() {
-    showMenu('Level Select','Arrow keys or A / D to move. Space, W or ↑ to jump.', [
+    const instructions=this.touch.enabled ? 'Hold a direction and tap or hold Jump.' : 'Arrow keys or A / D to move. Space, W or ↑ to jump.';
+    showMenu('Level Select',instructions, [
       ...levels.map((_, index)=>({title:levelLabel(index), run:()=>this.start(index), disabled:index>unlocked})),
       {title:'Back',run:()=>this.title()},
     ]);
   }
+  private canPlay() {
+    return !this.paused && !this.dead && !this.finishOpen && livesScreen.hidden;
+  }
   private pauseGame() {
+    this.touch.clear();
     this.paused=true;
     this.physics.pause();
-    showMenu('Paused', `Coins ${this.collected.size} · P to resume`,[
+    showMenu('Paused', `Coins ${this.collected.size}${this.touch.enabled?'':' · P to resume'}`,[
       {title:'Resume',run:()=>this.resumeGame()},
       {title:'Restart Level',run:()=>this.start(this.index)},
       {title:muted?'Sound Off':'Sound On',run:()=>{ muted=!muted; saveProgress(); this.pauseGame(); }},
@@ -696,6 +716,7 @@ class Adventure extends Phaser.Scene {
     ]);
   }
   private resumeGame() {
+    if (this.touch.portrait) return;
     this.paused=false;
     this.onTitle=false;
     hud.hidden=false;
@@ -703,6 +724,7 @@ class Adventure extends Phaser.Scene {
     this.physics.resume();
   }
   private win() {
+    this.touch.clear();
     this.finishOpen=true;
     this.paused=true;
     this.started=false;
@@ -861,12 +883,12 @@ class Adventure extends Phaser.Scene {
     }
   }
   update(_time: number,delta: number) {
-    if (!this.player || this.paused || this.dead || this.finishOpen || !livesScreen.hidden) return;
+    if (!this.player || !this.canPlay() || this.touch.portrait) return;
     this.clock+=delta;
     const seconds=Math.min(delta,48)/1000;
     const k=this.keys;
-    const left=k.LEFT.isDown||k.A.isDown;
-    const right=k.RIGHT.isDown||k.D.isDown;
+    const left=k.LEFT.isDown||k.A.isDown||this.touch.down('left');
+    const right=k.RIGHT.isDown||k.D.isDown||this.touch.down('right');
     const direction=Number(right)-Number(left);
     const body=this.player.body as Phaser.Physics.Arcade.Body;
     const floor=(body.blocked.down||body.touching.down) && body.velocity.y>=0;
@@ -878,8 +900,9 @@ class Adventure extends Phaser.Scene {
         sound(145,.075,96);
       }
     }
-    const pressingJump=k.SPACE.isDown||k.UP.isDown||k.W.isDown;
-    if ([k.SPACE,k.UP,k.W].map(key=>Phaser.Input.Keyboard.JustDown(key)).some(Boolean)) {
+    const pressingJump=k.SPACE.isDown||k.UP.isDown||k.W.isDown||this.touch.down('jump');
+    const keyboardJump=[k.SPACE,k.UP,k.W].map(key=>Phaser.Input.Keyboard.JustDown(key)).some(Boolean);
+    if (this.touch.consumeJump() || keyboardJump) {
       this.jumpPressed=this.clock;
     }
     const launched=this.clock-this.jumpPressed<128 && this.clock-this.lastGround<96;
