@@ -48,6 +48,7 @@ button:disabled{opacity:.48;cursor:default}
   inset:0;
   pointer-events:none;
   --control-size:clamp(48px,15dvh,65px);
+  --jump-size:clamp(60px,18dvh,76px);
 }
 #touch-controls button{
   pointer-events:auto;
@@ -75,8 +76,32 @@ button:disabled{opacity:.48;cursor:default}
   transform:rotate(45deg);
 }
 #touch-controls [data-hold="left"]::before{transform:rotate(-135deg)}
-#touch-controls [data-hold="jump"]::before{transform:rotate(-45deg)}
-#touch-controls [data-hold="jump"]{position:absolute;right:var(--screen-right);bottom:var(--screen-bottom)}
+#touch-controls [data-hold="jump"]{
+  position:absolute;
+  right:var(--screen-right);
+  bottom:var(--screen-bottom);
+  min-width:var(--jump-size);
+  min-height:var(--jump-size);
+  background:#e7b579;
+  border-color:#ffda9e;
+  color:#31211b;
+}
+#touch-controls [data-hold="jump"]::before{
+  width:14px;
+  height:14px;
+  transform:rotate(-45deg);
+}
+#touch-controls [data-hold="jump"]:active,#touch-controls [data-hold="jump"].held{background:#ffda9e}
+#touch-controls [data-hold="jump"]:focus-visible{outline-color:#31211b}
+#jump-hint{
+  position:absolute;
+  right:var(--screen-right);
+  bottom:calc(var(--screen-bottom) + var(--jump-size) + 8px);
+  padding:5px 9px;
+  font-weight:bold;
+  font-size:14px;
+  white-space:nowrap;
+}
 #touch-controls [data-pause]{
   position:absolute;
   right:var(--screen-right);

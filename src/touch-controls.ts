@@ -1,3 +1,5 @@
+const JUMP_HINT_KEY = 'definitely-not-a-trap-jump-hint-seen';
+
 type Direction = 'left' | 'right' | 'jump';
 
 export class TouchControls {
@@ -10,6 +12,13 @@ export class TouchControls {
   private jumpPressed = false;
 
   constructor(canPlay: () => boolean, pause: () => void) {
+    const jumpHint = this.controls.querySelector<HTMLElement>('#jump-hint')!;
+    try {
+      jumpHint.hidden = localStorage.getItem(JUMP_HINT_KEY) === '1';
+    } catch {
+      jumpHint.hidden = false;
+    }
+
     const sync = () => {
       this.clear();
       this.controls.hidden = !this.enabled || this.portrait;
@@ -27,7 +36,14 @@ export class TouchControls {
       button.addEventListener('pointerdown', event => {
         if (!this.enabled || this.portrait || !canPlay() || event.button !== 0) return;
         event.preventDefault();
-        if (action === 'jump' && !this.down('jump')) this.jumpPressed = true;
+        if (action === 'jump' && !this.down('jump')) {
+          this.jumpPressed = true;
+          if (!jumpHint.hidden) {
+            jumpHint.hidden = true;
+            try { localStorage.setItem(JUMP_HINT_KEY, '1'); }
+            catch { /* The hint is still dismissed for this visit. */ }
+          }
+        }
         this.held.set(event.pointerId, action);
         button.setPointerCapture(event.pointerId);
         button.classList.add('held');
