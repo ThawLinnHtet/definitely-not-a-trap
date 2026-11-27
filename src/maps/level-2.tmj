@@ -121,7 +121,7 @@
           "type": "",
           "x": 3433,
           "y": 337,
-          "width": 485,
+          "width": 402,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -130,9 +130,9 @@
           "id": 10,
           "name": "",
           "type": "",
-          "x": 4163,
+          "x": 4080,
           "y": 337,
-          "width": 340,
+          "width": 423,
           "height": 36,
           "rotation": 0,
           "visible": true
@@ -447,7 +447,7 @@
           "id": 37,
           "name": "",
           "type": "coinBridge",
-          "x": 3918,
+          "x": 3835,
           "y": 337,
           "point": true,
           "width": 0,
@@ -890,7 +890,7 @@
           "id": 71,
           "name": "",
           "type": "coin",
-          "x": 3963,
+          "x": 3883,
           "y": 293,
           "point": true,
           "width": 0,
@@ -926,7 +926,7 @@
           "id": 74,
           "name": "",
           "type": "coin",
-          "x": 4238,
+          "x": 4135,
           "y": 300,
           "point": true,
           "width": 0,
@@ -1413,6 +1413,18 @@
           "height": 0,
           "rotation": 0,
           "visible": true
+        },
+        {
+          "id": 122,
+          "name": "",
+          "type": "falling",
+          "x": 4180,
+          "y": 337,
+          "point": true,
+          "width": 0,
+          "height": 0,
+          "rotation": 0,
+          "visible": true
         }
       ],
       "type": "objectgroup",
@@ -1498,7 +1510,7 @@
             {
               "name": "text",
               "type": "string",
-              "value": "You dodged the coins. Surely the bridge is different."
+              "value": "You made it to the checkpoint. The next stretch should be quick."
             }
           ]
         },
@@ -1569,5 +1581,5 @@
     }
   ],
   "tilesets": [],
-  "nextobjectid": 122
+  "nextobjectid": 123
 }
