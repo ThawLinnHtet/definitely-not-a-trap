@@ -474,12 +474,15 @@ class Adventure extends Phaser.Scene {
     this.colliders.push(this.physics.add.overlap(this.player,coin,()=>{
       if (this.dead) return;
       coin.disableBody(true,true);
-      this.coinSpark.emitParticleAt(coin.x,coin.y,7);
+      this.coinSpark.emitParticleAt(coin.x,coin.y,10);
+      this.dust.emitParticleAt(coin.x,y,7);
       for (const plank of planks) {
         plank.state=1;
         plank.timer=this.clock;
       }
-      sound(165,.18,75);
+      this.say('That coin dropped the bridge.');
+      sound(280,.07,115);
+      sound(110,.22,54);
     }));
   }
   private paintTerrain(x: number,y: number,w: number,depthOrder=1) {
@@ -811,11 +814,19 @@ class Adventure extends Phaser.Scene {
       if (piece.state===0 && activates && Math.abs(distance)<=SPIKE_TRIGGER_RANGE) {
         piece.state=1;
         piece.timer=this.clock+piece.warningMs;
+        if (type==='jumpSpikes') this.say('Your jump armed the spikes.');
         sound(120,.13,78);
+      }
+      if (type==='jumpSpikes' && piece.state>0 && this.clock<piece.timer+650) {
+        this.draw.fillStyle(0xa9442e,.9).fillRect(x-29,y-2,58,5);
+        this.draw.fillStyle(0xffc875).fillRect(x-27,y-3,54,2);
       }
       if (piece.state===1) {
         this.drawTrapWarning(x,y-1);
-        if (this.clock>=piece.timer) this.raiseSpikes(piece);
+        if (this.clock>=piece.timer) {
+          this.raiseSpikes(piece);
+          if (type==='jumpSpikes') this.dust.emitParticleAt(x,y-4,8);
+        }
       }
     }
     if (type==='falling') {
