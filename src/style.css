@@ -66,7 +66,7 @@ button:disabled{opacity:.48;cursor:default}
 }
 #touch-controls button:active,#touch-controls button.held{background:#8a5837}
 .touch-movement{position:absolute;left:var(--screen-left);bottom:var(--screen-bottom);display:flex;gap:8px}
-#touch-controls [data-hold="left"]::before,#touch-controls [data-hold="right"]::before{
+#touch-controls [data-hold]::before{
   content:"";
   width:10px;
   height:10px;
@@ -75,6 +75,7 @@ button:disabled{opacity:.48;cursor:default}
   transform:rotate(45deg);
 }
 #touch-controls [data-hold="left"]::before{transform:rotate(-135deg)}
+#touch-controls [data-hold="jump"]::before{transform:rotate(-45deg)}
 #touch-controls [data-hold="jump"]{position:absolute;right:var(--screen-right);bottom:var(--screen-bottom)}
 #touch-controls [data-pause]{
   position:absolute;

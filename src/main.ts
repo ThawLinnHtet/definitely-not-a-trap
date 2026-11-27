@@ -695,7 +695,7 @@ class Adventure extends Phaser.Scene {
     ]);
   }
   private select() {
-    const instructions=this.touch.enabled ? 'Hold a direction and tap or hold Jump.' : 'Arrow keys or A / D to move. Space, W or ↑ to jump.';
+    const instructions=this.touch.enabled ? 'Use the side arrows to move and the up arrow to jump.' : 'Arrow keys or A / D to move. Space, W or ↑ to jump.';
     showMenu('Level Select',instructions, [
       ...levels.map((_, index)=>({title:levelLabel(index), run:()=>this.start(index), disabled:index>unlocked})),
       {title:'Back',run:()=>this.title()},
