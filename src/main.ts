@@ -17,6 +17,8 @@ const BAIT_WARNING_MS = 120;
 const GATEKEEPER_STOMPS = 3;
 const STARTING_LIVES = 2;
 const LIVES_SCREEN_MS = 485;
+const KEYBOARD_JUMP_BUFFER_MS = 128;
+const TOUCH_JUMP_BUFFER_MS = 180;
 const GATE_DROP_MS = 360;
 const GATE_SPEED = 300;
 function levelLabel(index: number) {
@@ -111,7 +113,7 @@ class Adventure extends Phaser.Scene {
   private finishOpen = false;
   private escapeGate?: { x: number; startedAt?: number };
   private lastGround = -1000;
-  private jumpPressed = -1000;
+  private jumpBufferedUntil = 0;
   private stride = 0;
   private wasGrounded = false;
   private fallSpeed = 0;
@@ -272,7 +274,7 @@ class Adventure extends Phaser.Scene {
     this.finishOpen = false;
     this.escapeGate = map.escapeGate && { x: map.escapeGate.x };
     this.lastGround = -1000;
-    this.jumpPressed = -1000;
+    this.jumpBufferedUntil = 0;
     this.stride = 0;
     this.wasGrounded = false;
     this.fallSpeed = 0;
@@ -902,14 +904,15 @@ class Adventure extends Phaser.Scene {
     }
     const pressingJump=k.SPACE.isDown||k.UP.isDown||k.W.isDown||this.touch.down('jump');
     const keyboardJump=[k.SPACE,k.UP,k.W].map(key=>Phaser.Input.Keyboard.JustDown(key)).some(Boolean);
-    if (this.touch.consumeJump() || keyboardJump) {
-      this.jumpPressed=this.clock;
+    const jumpBuffer=this.touch.consumeJump() ? TOUCH_JUMP_BUFFER_MS : keyboardJump ? KEYBOARD_JUMP_BUFFER_MS : 0;
+    if (jumpBuffer) {
+      this.jumpBufferedUntil=Math.max(this.jumpBufferedUntil,this.clock+jumpBuffer);
     }
-    const launched=this.clock-this.jumpPressed<128 && this.clock-this.lastGround<96;
+    const launched=this.clock<this.jumpBufferedUntil && this.clock-this.lastGround<96;
     if (launched) {
       this.player.setVelocityY(pressingJump ? -498 : -365);
       this.lastGround=-1000;
-      this.jumpPressed=-1000;
+      this.jumpBufferedUntil=0;
       this.landUntil=0;
       if (floor) this.dust.emitParticleAt(this.player.x,body.bottom,4);
       sound(305,.15,450);
