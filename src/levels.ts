@@ -12,6 +12,7 @@ interface Level {
   exit: number;
   escapeGate?: { x: number; y: number; triggerX: number };
   surfaces: Surface[];
+  brakeZones: Surface[];
   platforms: Platform[];
   switches: Switch[];
   objects: ObjectData[];
@@ -51,6 +52,7 @@ function readMap(source: string): Level {
       x,y,channel:String(property(properties,'channel')),mounted:property(properties,'mounted')===true,
     })),
     surfaces: layer('Surfaces').map(({x, y, width}) => [x, y, width]),
+    brakeZones: objects.filter(item=>item.type==='brakeZone').map(({x,y,width})=>[x,y,width]),
     objects: objects.filter(({type}) => kinds.has(type)).map(item => {
       const warningMs = property(item.properties, 'warningMs');
       return [item.type as Kind, item.x, item.y, Number(property(item.properties, 'range') ?? 0),

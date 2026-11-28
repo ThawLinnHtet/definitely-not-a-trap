@@ -308,6 +308,14 @@ class Adventure extends Phaser.Scene {
         this.landingArt.push(ledge);
       }
     }
+    for (const [x,y,width] of map.brakeZones) {
+      const stripes=this.track(this.add.graphics().setDepth(2));
+      stripes.fillStyle(0x352727).fillRect(x,y-3,width,9);
+      stripes.fillStyle(0xf2bd65);
+      for (let left=x+3;left+9<x+width;left+=9) {
+        stripes.fillPoints([{x:left,y:y+4},{x:left+4,y:y+4},{x:left+9,y:y-2},{x:left+5,y:y-2}],true);
+      }
+    }
     const spawnX = this.checkpoint ?? map.start;
     this.player = this.track(this.physics.add.image(spawnX,this.groundAt(spawnX)-28,'body'))
       .setVisible(false).setMaxVelocity(248,720);
