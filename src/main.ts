@@ -4,6 +4,7 @@ import '@fontsource/pixelify-sans/latin-700.css';
 import './style.css';
 import { levels, type Kind } from './levels';
 import { TouchControls } from './touch-controls';
+import { playTrapSound, type TrapSound } from './trap-audio';
 import { heroTexture, registerHeroFrames } from './hero-art';
 
 const W = 836;
@@ -56,16 +57,20 @@ function saveProgress() {
 }
 
 let audio: AudioContext | undefined;
-function sound(frequency: number, duration = .11, end = frequency) {
+function sound(cue: number | TrapSound, duration = .11, end?: number) {
   if (muted || !window.AudioContext) return;
   try {
     audio ??= new AudioContext();
     if (audio.state !== 'running') void audio.resume().catch(() => {});
+    if (typeof cue === 'string') {
+      playTrapSound(audio,cue);
+      return;
+    }
     const oscillator = audio.createOscillator();
     const gain = audio.createGain();
     oscillator.type = 'triangle';
-    oscillator.frequency.setValueAtTime(frequency, audio.currentTime);
-    oscillator.frequency.exponentialRampToValueAtTime(end, audio.currentTime + duration);
+    oscillator.frequency.setValueAtTime(cue, audio.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(end ?? cue, audio.currentTime + duration);
     gain.gain.setValueAtTime(.075, audio.currentTime);
     gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + duration);
     oscillator.connect(gain).connect(audio.destination);
@@ -489,8 +494,7 @@ class Adventure extends Phaser.Scene {
         plank.timer=this.clock;
       }
       this.say('That coin dropped the bridge.');
-      sound(280,.07,115);
-      sound(110,.22,54);
+      sound('bridge-snap');
     }));
   }
   private paintTerrain(x: number,y: number,w: number,depthOrder=1) {
@@ -655,7 +659,7 @@ class Adventure extends Phaser.Scene {
     const y=Math.min(hero.y,H-18);
     hero.setFrame('fall').setPosition(x,y).setTint(0xffbea0);
     this.dust.emitParticleAt(x,y,8);
-    sound(208,.26,61);
+    sound('death');
 
     if (reducedMotion) {
       this.tweens.add({targets:hero,alpha:0,duration:280,onComplete:()=>this.retryAfterDeath()});
@@ -757,8 +761,10 @@ class Adventure extends Phaser.Scene {
     ]);
   }
   private raiseSpikes(piece: Piece) {
+    if (piece.state===2) return;
     piece.state=2;
     piece.sprite.setVisible(true);
+    sound('spikes-rise');
   }
   private drawTrapWarning(x: number,y: number) {
     this.draw.fillStyle(0xde6f43,.68).fillRect(x-21,y,42,3);
@@ -841,7 +847,7 @@ class Adventure extends Phaser.Scene {
       if (piece.state===0 && Math.abs(distance)<=ROCK_TRIGGER_RANGE) {
         piece.state=1;
         piece.timer=this.clock+ROCK_WARNING_MS;
-        sound(120,.13,78);
+        sound('rock-warning');
       }
       if (piece.state===1) {
         this.drawTrapWarning(x,y-3);
@@ -858,7 +864,7 @@ class Adventure extends Phaser.Scene {
         this.draw.fillStyle(0x392627,.45).fillEllipse(x,y-2,width,9);
         if (this.clock>piece.timer || sprite.y+sprite.height/2>=y) {
           this.dust.emitParticleAt(x,y,8);
-          sound(103,.16,58);
+          sound('rock-impact');
           piece.state=3;
           sprite.disableBody(true,true);
         }
